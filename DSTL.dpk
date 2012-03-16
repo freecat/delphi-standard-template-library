@@ -1,0 +1,59 @@
+package DSTL;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION OFF}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES ON}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE DEBUG}
+{$ENDIF IMPLICITBUILDING}
+{$DESCRIPTION 'Delphi Standard Template Library'}
+{$IMPLICITBUILD OFF}
+
+requires
+  rtl;
+
+contains
+  DSTL.Types in 'src\DSTL.Types.pas',
+  DSTL.Filesystem.Filesystem in 'src\Filesystem\DSTL.Filesystem.Filesystem.pas',
+  DSTL.Math.Sort in 'src\Math\DSTL.Math.Sort.pas',
+  DSTL.Config in 'src\DSTL.Config.pas',
+  DSTL.STL.Iterator in 'src\STL\DSTL.STL.Iterator.pas',
+  DSTL.STL.List in 'src\STL\DSTL.STL.List.pas',
+  DSTL.STL.ListNode in 'src\STL\DSTL.STL.ListNode.pas',
+  DSTL.STL.Vector in 'src\STL\DSTL.STL.Vector.pas',
+  DSTL.Algorithm.Algorithm in 'src\Algorithm\DSTL.Algorithm.Algorithm.pas',
+  DSTL.Exception in 'src\DSTL.Exception.pas',
+  DSTL.Crypto.MD5 in 'src\Crypto\DSTL.Crypto.MD5.pas',
+  DSTL.Network.Network in 'src\Network\DSTL.Network.Network.pas',
+  DSTL.STL.Deque in 'src\STL\DSTL.STL.Deque.pas',
+  DSTL.STL.Bitset in 'src\STL\DSTL.STL.Bitset.pas',
+  DSTL.STL.Stack in 'src\STL\DSTL.STL.Stack.pas',
+  DSTL.STL.Queues in 'src\STL\DSTL.STL.Queues.pas',
+  DSTL.Utils.Pair in 'src\Utils\DSTL.Utils.Pair.pas',
+  DSTL.STL.TreeNode in 'src\STL\DSTL.STL.TreeNode.pas',
+  DSTL.UI.Console in 'src\UI\DSTL.UI.Console.pas',
+  DSTL.STL.RBTree in 'src\STL\DSTL.STL.RBTree.pas',
+  DSTL.Utils.Range in 'src\Utils\DSTL.Utils.Range.pas',
+  DSTL.STL.Map in 'src\STL\DSTL.STL.Map.pas',
+  DSTL.STL.Sets in 'src\STL\DSTL.STL.Sets.pas';
+
+end.

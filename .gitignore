@@ -1,0 +1,8 @@
+.svn
+__history
+*.dcu
+*.dproj.local
+*.identcache
+*.bpl
+*.exe
+Win32

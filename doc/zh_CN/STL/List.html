@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>
+DSTL - DSTL.STL.List
+</title>
+</head>
+<body>
+<font face = "Courier new">
+<img src = "../../../dstl.png">
+<hr>
+<h1>单元</h1>
+DSTL.STL.List
+<h1>类型</h1>
+TList&lt;T&gt;
+<h1>方法</h1>
+<table border="1">
+<tr><td>constructor Create;				</td><td></td></tr>
+<tr><td>destructor Destroy; 				</td><td></td></tr>
+<tr><td>procedure add(const objs: array of T); 		</td><td>向List中添加元素</td></tr>
+<tr><td>procedure remove(const objs: array of T); 		</td><td>删除List中的元素</td></tr>
+<tr><td>procedure clear;  				</td><td>删除List中所有元素</td></tr>
+<tr><td>function start : TIterator<T>; 			</td><td>返回List起始Iterator</td></tr>
+<tr><td>function finish : TIterator<T>;			</td><td>返回List末尾Iterator</td></tr>
+<tr><td>function front: T; 				</td><td>返回List中第一个元素</td></tr>
+<tr><td>function back: T; 				</td><td>返回List中最后一个元素</td></tr>
+<tr><td>function max_size: integer; 			</td><td>返回List最大长度</td></tr>
+<tr><td>procedure resize(const n: integer); 		</td><td>重新定义List元素个数</td></tr>
+<tr><td>procedure resize(const n: integer; const x: T);  	</td><td></td></tr>
+<tr><td>function size : Integer;   			</td><td>返回List中元素个数</td></tr>
+<tr><td>function empty : boolean;   			</td><td>判断List是否为空</td></tr>
+<tr><td>function at(const idx: integer): T; 		</td><td>返回第idx个元素</td></tr>
+<tr><td>function get(const idx: integer): TIterator<T>;	</td><td>返回第idx个Iterator</td></tr>
+<tr><td>function pop_back : T; 			</td><td>删除List中最后一个元素</td></tr>
+<tr><td>function pop_front : T;			</td><td>删除List中第一个元素</td></tr>
+<tr><td>procedure push_back(const objs : array of T);	</td><td>添加一个元素到链表尾</td></tr>
+<tr><td>procedure push_front(const objs : array of T);	</td><td>添加一个元素到链表头</td></tr>
+<tr><td>procedure cut(_start, _finish : TIterator<T>);	</td><td>删除_start到_finish间的所有元素</td></tr>
+<tr><td>procedure insert(iterator : TIterator<T>; const obj : T);</td><td>插入一个元素到List中</td></tr>
+<tr><td>function erase(_start, _finish: TIterator<T>): TIterator<T>; </td><td>删除_start到_finish间的所有元素</td></tr>
+<tr><td>procedure merge(l: TList<T>);			</td><td>合并两List</td></tr>
+<tr><td>procedure reverse;				</td><td>反转List</td></tr>
+<tr><td>procedure sort;				</td><td>对List排序</td></tr>
+<tr><td>procedure sort(comparator: IComparer<T>); 	</td><td></td></tr>
+<tr><td>procedure swap(l: TList<T>);			</td><td>交换两个List</td></tr>
+<tr><td>procedure unique;				</td><td>使List中元素唯一</td></tr>
+</table>
+<hr>
+(c)Copyright Jimx 2011
+</font>
+</body>
+</htm>

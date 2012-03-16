@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>
+DSTL - DSTL.STL.Vector
+</title>
+</head>
+<body>
+<font face = "Courier new">
+<img src = "../../../dstl.png">
+<hr>
+<h1>单元</h1>
+DSTL.STL.Vector
+<h1>类型</h1>
+TVector&lt;T&gt;
+<h1>方法</h1>
+<table border="1">
+<tr><td>constructor Create;					</td><td></td></tr>
+<tr><td>destructor Destroy; 					</td><td></td></tr>
+<tr><td>procedure add(const objs: array of T);			</td><td>向Vector中插入元素</td></tr>
+<tr><td>procedure remove(const objs: array of T);			</td><td>删除Vector中元素</td></tr>
+<tr><td>procedure clear; 					</td><td>删除Vector中所有元素</td></tr>
+<tr><td>function start : TIterator<T>;				</td><td>返回Vector起始Iterator</td></tr>
+<tr><td>function finish : TIterator<T>;				</td><td>返回Vector末尾Iterator</td></tr>
+<tr><td>function front: T;  					</td><td>返回Vector中第一个元素</td></tr>	
+<tr><td>function back: T;  					</td><td>返回Vector中最后一个元素</td></tr>
+<tr><td>function capacity : Integer;				</td><td>返回Vector最大长度</td></tr>
+<tr><td>function max_size : Integer;				</td><td>返回Vector最大长度</td></tr>			
+<tr><td>procedure reserve(const n: integer);			</td><td>反转Vector</td></tr>	
+<tr><td>procedure resize(const n: integer);  			</td><td>重新设置Vector长度</td></tr>
+<tr><td>procedure resize(const n: integer; const x: T);  		</td><td></td></tr>
+<tr><td>function size : Integer;  				</td><td>返回当前Vector长度</td></tr>
+<tr><td>function empty : boolean;   				</td><td>判断Vector是否为空</td></tr>
+<tr><td>function at(const idx: integer): T; 			</td><td>返回第Vector中idx个元素</td></tr>
+<tr><td>function pop_back : T; 				</td><td>删除最后一个元素</td></tr>
+<tr><td>procedure push_back(const objs : array of T);		</td><td>向Vector尾插入元素</td></tr>
+<tr><td>procedure insert(iterator : TIterator<T>; const obj : T);	</td><td>向Vector中插入元素</td></tr>
+<tr><td>function erase(_start, _finish: TIterator<T>): TIterator<T>;	</td><td>删除_start与_finish之间的所有元素</td></tr>
+</table>
+<hr>
+(c)Copyright Jimx 2011
+</font>
+</body>
+</htm>

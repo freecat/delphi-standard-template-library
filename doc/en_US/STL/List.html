@@ -1,0 +1,51 @@
+<html>
+<head>
+<title>
+DSTL - DSTL.STL.List
+</title>
+</head>
+<body>
+<font face = "Courier new">
+<img src = "../../../dstl.png">
+<hr>
+<h1>Unit</h1>
+DSTL.STL.List
+<h1>Type</h1>
+TList&lt;T&gt;
+<h1>Methods</h1>
+<table border="1">
+<tr><td>constructor Create;				</td><td>Creates an empty list.</td></tr>
+<tr><td>destructor Destroy; 				</td><td>The destructor.</td></tr>
+<tr><td>procedure add(const objs: array of T); 		</td><td>Adds elements to the list.</td></tr>
+<tr><td>procedure remove(const objs: array of T); 		</td><td>Removes elements from th list.</td></tr>
+<tr><td>procedure clear;  				</td><td>Removes all elements in the list.</td></tr>
+<tr><td>function start : TIterator<T>; 			</td><td>Returns an iterator pointing to the beginning of the list.</td></tr>
+<tr><td>function finish : TIterator<T>;			</td><td>Returns an iterator pointing to the end of the list.</td></tr>
+<tr><td>function front: T; 				</td><td>Returns the first element.</td></tr>
+<tr><td>function back: T; 				</td><td>Returns the last element.</td></tr>
+<tr><td>function max_size: integer; 			</td><td>Returns the largest possible size of the list.</td></tr>
+<tr><td>procedure resize(const n: integer); 		</td><td>Inserts or erases elements at the end such that the size becomes n.</td></tr>
+<tr><td>procedure resize(const n: integer; const x: T);  	</td><td></td></tr>
+<tr><td>function size : Integer;   			</td><td>Returns the size of the list.</td></tr>
+<tr><td>function empty : boolean;   			</td><td>True if list is empty.</td></tr>
+<tr><td>function at(const idx: integer): T; 		</td><td></td></tr>
+<tr><td>function get(const idx: integer): TIterator<T>;	</td><td></td></tr>
+<tr><td>function pop_back : T; 			</td><td>Removes the last elements.</td></tr>
+<tr><td>function pop_front : T;			</td><td>Removes the first elements.</td></tr>
+<tr><td>procedure push_back(const objs : array of T);	</td><td>Adds elements to the end of the list.</td></tr>
+<tr><td>procedure push_front(const objs : array of T);	</td><td>Adds elements to the beginning of the list.</td></tr>
+<tr><td>procedure cut(_start, _finish : TIterator<T>);	</td><td>Erases elements between _start and _finish.</td></tr>
+<tr><td>procedure insert(iterator : TIterator<T>; const obj : T);</td><td>Inserts an element to the list.</td></tr>
+<tr><td>function erase(_start, _finish: TIterator<T>): TIterator<T>; </td><td>Erases elements between _start and _finish.</td></tr>
+<tr><td>procedure merge(l: TList<T>);			</td><td>Merges two lists.</td></tr>
+<tr><td>procedure reverse;				</td><td>Reverses the list.</td></tr>
+<tr><td>procedure sort;				</td><td>Sorts the list.</td></tr>
+<tr><td>procedure sort(comparator: IComparer<T>); 	</td><td></td></tr>
+<tr><td>procedure swap(l: TList<T>);			</td><td>Swaps two lists.</td></tr>
+<tr><td>procedure unique;				</td><td></td></tr>
+</table>
+<hr>
+(c)Copyright Jimx 2011
+</font>
+</body>
+</htm>

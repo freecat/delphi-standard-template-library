@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>
+DSTL - DSTL.STL.Vector
+</title>
+</head>
+<body>
+<font face = "Courier new">
+<img src = "../../../dstl.png">
+<hr>
+<h1>Unit</h1>
+DSTL.STL.Vector
+<h1>Type</h1>
+TVector&lt;T&gt;
+<h1>Methods</h1>
+<table border="1">
+<tr><td>constructor Create;					</td><td></td></tr>
+<tr><td>destructor Destroy; 					</td><td></td></tr>
+<tr><td>procedure add(const objs: array of T);			</td><td>Adds elements to the vector.</td></tr>
+<tr><td>procedure remove(const objs: array of T);			</td><td>Removes elements from the vector.</td></tr>
+<tr><td>procedure clear; 					</td><td>Removes all elements of the vector.</td></tr>
+<tr><td>function start : TIterator<T>;				</td><td>Returns the iterator pointing to the first elements.</td></tr>
+<tr><td>function finish : TIterator<T>;				</td><td>Returns the iterator pointing to the last elements.</td></tr>
+<tr><td>function front: T;  					</td><td>Returns the last element.</td></tr>	
+<tr><td>function back: T;  					</td><td>Returns the first element.</td></tr>
+<tr><td>function capacity : Integer;				</td><td>Returns the largest possible size of the vector.</td></tr>
+<tr><td>function max_size : Integer;				</td><td>Returns the largest possible size of the vector.</td></tr>			
+<tr><td>procedure reserve(const n: integer);			</td><td>Reverses the vector.</td></tr>	
+<tr><td>procedure resize(const n: integer);  			</td><td>Resizes the vector.</td></tr>
+<tr><td>procedure resize(const n: integer; const x: T);  		</td><td></td></tr>
+<tr><td>function size : Integer;  				</td><td>Returns the size of the vector.</td></tr>
+<tr><td>function empty : boolean;   				</td><td>True if the vector is empty.</td></tr>
+<tr><td>function at(const idx: integer): T; 			</td><td></td></tr>
+<tr><td>function pop_back : T; 				</td><td>Removes the last element.</td></tr>
+<tr><td>procedure push_back(const objs : array of T);		</td><td>Inserts elements to the end of the vector.</td></tr>
+<tr><td>procedure insert(iterator : TIterator<T>; const obj : T);	</td><td>Inserts elements to the vector.</td></tr>
+<tr><td>function erase(_start, _finish: TIterator<T>): TIterator<T>;	</td><td>Removes elements between _start and _finish.</td></tr>
+</table>
+<hr>
+(c)Copyright Jimx 2011
+</font>
+</body>
+</htm>
