@@ -66,9 +66,9 @@ type
     procedure push_back(const obj: T); override;
     procedure push_front(const obj: T);
     procedure cut(_start, _finish: TIterator<T>);
-    procedure insert(Iterator: TIterator<T>; const obj: T); override;
-    function _erase(it: TIterator<T>): TIterator<T>; override;
-    function erase(_start, _finish: TIterator<T>): TIterator<T>; override;
+    procedure insert(Iterator: TIterator<T>; const obj: T);
+    function _erase(it: TIterator<T>): TIterator<T>;
+    function erase(_start, _finish: TIterator<T>): TIterator<T>;
     procedure merge(l: TList<T>);
     procedure reverse;
     procedure _sort(comparator: IComparer<T>; l, r: integer);

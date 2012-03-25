@@ -32,13 +32,16 @@ interface
 uses SysUtils;
 
 const
-  errornr = 3;
+  errornr = 4;
   E_OUT_OF_RANGE = $1;
   E_INVALID_ARG = $2;
   E_FILE_NOT_FOUND = $3;
+  E_OUT_OF_MEMORY = $4;
 
   exception_msg: array [1 .. errornr] of string = ('Out of range.',
-    'Invalid argument: %s.', 'File ''%s'' not found.');
+    'Invalid argument: %s.',
+    'File ''%s'' not found.',
+    'Out of memory.');
 
 procedure raise_exception(errno: integer); overload;
 procedure raise_exception(errno: integer; args: array of const); overload;

@@ -14,3 +14,6 @@ del /f /q /s *.#0*
 del /f /q /s *.il*
 del /f /q /s *.map
 del /f /q /s *.pch
+del /f /q /s *.pdi
+del /f /q /s *.tds
+del /f /q /s *.obj

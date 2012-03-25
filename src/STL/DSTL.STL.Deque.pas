@@ -30,21 +30,26 @@ unit DSTL.STL.Deque;
 interface
 
 uses
-  Generics.Collections, Generics.Defaults,
-  DSTL.Types, DSTL.STL.Iterator, DSTL.STL.Vector;
+  Windows, Generics.Defaults,
+  DSTL.Types, DSTL.STL.Iterator, DSTL.STL.Vector, DSTL.Exception;
 
 type
   TDeque<T> = class(TSequence<T>)
   protected
-    items: ^arrObject<T>;
+    fItems: ^arrObject<T>;
     len, cap: integer;
 
     procedure iadvance(var Iterator: TIterator<T>); override;
     function iget(const Iterator: TIterator<T>): T; override;
     function iequals(const iter1, iter2: TIterator<T>): boolean; override;
+    function get_item(idx: integer): T;
+    procedure set_item(idx: integer; const value: T);
+    procedure reallocate(sz: integer);
   public
     constructor Create;
     destructor Destroy; override;
+    procedure assign(first, last: TIterator<T>); overload;
+    procedure assign(n: integer; u: T); overload;
     procedure add(const obj: T); override;
     procedure remove(const obj: T); override;
     procedure clear; override;
@@ -61,16 +66,20 @@ type
     function empty: boolean; override;
     function at(const idx: integer): T; override;
     function pop_front: T;
-    procedure _push_front(const obj: T);
-    procedure push_front(const objs: array of T);
+    procedure push_front(const obj: T);
     function pop_back: T; override;
     procedure push_back(const obj: T); override;
-    procedure insert(Iterator: TIterator<T>; const obj: T); override;
-    function _erase(it: TIterator<T>): TIterator<T>; override;
-    function erase(_start, _finish: TIterator<T>): TIterator<T>; override;
+    function insert(Iterator: TIterator<T>; const obj: T): TIterator<T>; overload;
+    procedure insert(Iterator: TIterator<T>; n: integer; const obj: T); overload;
+    procedure insert(Iterator: TIterator<T>; first, last: TIterator<T>); overload;
+    function erase(it: TIterator<T>): TIterator<T>; overload;
+    function erase(_start, _finish: TIterator<T>): TIterator<T>; overload;
+    procedure swap(var dqe: TDeque<T>);
     procedure _sort(comparator: IComparer<T>; l, r: integer);
     procedure sort; overload;
     procedure sort(comparator: IComparer<T>); overload;
+
+    property items[idx: integer]: T read get_item write set_item; default;
   end;
 
 implementation
@@ -82,7 +91,7 @@ implementation
   ****************************************************************************** }
 constructor TDeque<T>.Create;
 begin
-  getMem(items, defaultArrSize * sizeOf(T));
+  getMem(fItems, defaultArrSize * sizeOf(T));
   len := 0;
   cap := defaultArrSize;
 end;
@@ -99,7 +108,7 @@ end;
 
 function TDeque<T>.iget(const Iterator: TIterator<T>): T;
 begin
-  result := items[Iterator.position];
+  result := fItems[Iterator.position];
 end;
 
 function TDeque<T>.iequals(const iter1, iter2: TIterator<T>): boolean;
@@ -107,10 +116,66 @@ begin
   result := iter1.position = iter2.position;
 end;
 
+function TDeque<T>.get_item(idx: integer): T;
+begin
+  if idx > len then raise_exception(E_OUT_OF_RANGE);
+  Result := fItems[idx];
+end;
+
+procedure TDeque<T>.set_item(idx: integer; const value: T);
+begin
+  if idx > len then raise_exception(E_OUT_OF_RANGE);
+  fItems[idx] := value;
+end;
+
+procedure TDeque<T>.reallocate(sz: integer);
+var
+  oldcap: integer;
+  olditems: pointer;
+begin
+  if cap < sz then oldcap := cap else oldcap := sz;
+  olditems := fItems;
+  GetMem(fItems, sz);
+  CopyMemory(fItems, olditems, oldcap);
+  FreeMem(olditems, oldcap);
+  cap := sz;
+end;
+
+procedure TDeque<T>.assign(first, last: TIterator<T>);
+var
+  iter: TIterator<T>;
+begin
+  freeMem(fItems);
+  getMem(fItems, defaultArrSize * sizeOf(T));
+  len := 0;
+  cap := defaultArrSize;
+
+  iter := first;
+  Self.push_back(iter);
+  while iter <> last do
+  begin
+    iter.handle.iadvance(iter);
+    Self.push_back(iter);
+  end;
+end;
+
+procedure TDeque<T>.assign(n: integer; u: T);
+var
+  i: integer;
+begin
+  freeMem(fItems);
+  getMem(fItems, defaultArrSize * sizeOf(T));
+  len := 0;
+  cap := defaultArrSize;
+
+  Self.len := 0;
+  for i := 0 to n - 1 do
+    Self.push_back(u);
+end;
+
 procedure TDeque<T>.add(const obj: T);
 begin
-  items[len] := obj;
-  inc(len);
+  push_back(obj);
 end;
 
 procedure TDeque<T>.remove(const obj: T);
@@ -138,14 +203,14 @@ function TDeque<T>.front: T;
 begin
   if empty then
     exit;
-  result := items[0];
+  result := fItems[0];
 end;
 
 function TDeque<T>.back: T;
 begin
   if empty then
     exit;
-  result := items[len - 1];
+  result := fItems[len - 1];
 end;
 
 function TDeque<T>.capacity: integer;
@@ -199,81 +264,130 @@ function TDeque<T>.at(const idx: integer): T;
 begin
   if idx > size then
     exit;
-  result := items[idx];
+  result := fItems[idx];
 end;
 
 function TDeque<T>.pop_front: T;
 var
   i: integer;
 begin
-  result := items[0];
+  result := fItems[0];
   for i := 0 to len - 2 do
   begin
-    items[i] := items[i + 1];
+    fItems[i] := fItems[i + 1];
   end;
   dec(len);
 end;
 
-procedure TDeque<T>._push_front(const obj: T);
+procedure TDeque<T>.push_front(const obj: T);
 var
   i: integer;
 begin
   for i := len downto 1 do
   begin
-    items[i] := items[i - 1];
+    fItems[i] := fItems[i - 1];
   end;
   inc(len);
-  items[0] := obj;
-end;
-
-procedure TDeque<T>.push_front(const objs: array of T);
-var
-  i: integer;
-begin
-  for i := low(objs) to high(objs) do
-  begin
-    _push_front(objs[i]);
-  end;
+  fItems[0] := obj;
 end;
 
 function TDeque<T>.pop_back: T;
 begin
-  result := items[len - 1];
+  result := fItems[len - 1];
   dec(len);
 end;
 
 procedure TDeque<T>.push_back(const obj: T);
 begin
-  items[len] := obj;
+  if len = cap then reallocate((cap + 1) * sizeof(T));
+  fItems[len] := obj;
   inc(len);
 end;
 
-procedure TDeque<T>.insert(Iterator: TIterator<T>; const obj: T);
+function TDeque<T>.insert(Iterator: TIterator<T>; const obj: T): TIterator<T>;
 var
-  idx: integer;
-  i: integer;
+  idx: Integer;
+  i: Integer;
 begin
+  if cap = len then reallocate((cap + 1) * sizeof(T));
+
   idx := Iterator.position;
   for i := size - 1 downto idx do
-    items[i + 1] := items[i];
-  items[idx] := obj;
+    fItems[i + 1] := fItems[i];
+  fItems[idx] := obj;
   inc(len);
+
+  result.position := idx;
+  Result.handle := self;
 end;
 
-function TDeque<T>._erase(it: TIterator<T>): TIterator<T>;
+procedure TDeque<T>.insert(Iterator: TIterator<T>; n: integer; const obj: T);
 var
-  idx: integer;
-  i: integer;
+  idx: Integer;
+  i: Integer;
+begin
+  if len + n > cap then reallocate(len + n);
+
+  idx := Iterator.position;
+  for i := size - 1 downto idx do
+    fItems[i + n] := fItems[i];
+  for i := idx to idx + n do
+    fItems[i] := obj;
+  inc(len, n);
+end;
+
+procedure TDeque<T>.insert(Iterator: TIterator<T>; first, last: TIterator<T>);
+var
+  dist: integer;
+  iter: TIterator<T>;
+  idx, i: integer;
+begin
+  dist := 0;
+  iter := first;
+  while iter <> last do
+  begin
+    iter.handle.iadvance(iter);
+    inc(dist);
+  end;
+  inc(dist);
+
+  if len + dist > cap then reallocate(len + dist);
+
+  idx := Iterator.position;
+  for i := size - 1 downto idx do
+    fItems[i + dist] := fItems[i];
+  iter := first;
+  for i := idx to idx + dist do
+  begin
+    fItems[i] := iter;
+    iter.handle.iadvance(iter);
+  end;
+  inc(len, dist);
+end;
+
+function TDeque<T>.erase(it: TIterator<T>): TIterator<T>;
+var
+  idx: Integer;
+  i: Integer;
 begin
   idx := it.position;
   for i := idx to size - 1 do
-    items[i] := items[i + 1];
+    fItems[i] := fItems[i + 1];
   dec(len);
 end;
 
 function TDeque<T>.erase(_start, _finish: TIterator<T>): TIterator<T>;
+var
+  idx: Integer;
+  dist, cnt: integer;
+  i: Integer;
 begin
-  // TODO: erase code here
+  idx := start.position;
+  dist := _finish.position - _start.position + 1;
+  cnt := len - _finish.position;
+  for i := idx to idx + cnt do
+    fItems[i] := fItems[i + dist];
+  dec(len, dist);
 end;
 
 procedure TDeque<T>._sort(comparator: IComparer<T>; l, r: integer);
@@ -284,15 +398,15 @@ var
 begin
   i := l;
   j := r;
-  x := items[(i + j) shr 1];
+  x := fItems[(i + j) shr 1];
   repeat
     while (comparator.Compare(at(i), x) < 0) do inc(i);
     while (comparator.Compare(x, at(j)) < 0) do dec(j);
     if i <= j then
     begin
-      tmp := items[i];
-      items[i] := items[j];
-      items[j] := tmp;
+      tmp := fItems[i];
+      fItems[i] := fItems[j];
+      fItems[j] := tmp;
       inc(i);
       dec(j);
     end;
@@ -309,6 +423,48 @@ end;
 procedure TDeque<T>.sort(comparator: IComparer<T>);
 begin
   _sort(comparator, 0, size - 1);
+end;
+
+procedure TDeque<T>.swap(var dqe: TDeque<T>);
+var
+  cnt, slen, sdqe, scap: integer;
+  i: integer;
+  tmp: T;
+begin
+  if Self.len > dqe.len then
+  begin
+    cnt := Self.len;
+    slen := dqe.len;
+    scap := dqe.cap;
+    sdqe := 0;
+  end
+  else begin
+    cnt := dqe.len;
+    slen := Self.len;
+    scap := Self.cap;
+    sdqe := 1;
+  end;
+  if (Self.len > dqe.len) then dqe.resize(Self.len)
+  else  if (Self.len < dqe.len) then Self.resize(dqe.len);
+  if (Self.len > Self.cap) then Self.reallocate(Self.len);
+  if (dqe.len > dqe.cap) then dqe.reallocate(dqe.len);
+
+  for i := 0 to cnt - 1 do
+  begin
+    tmp := Self.fItems[i];
+    Self.fItems[i] := dqe.fItems[i];
+    dqe.fItems[i] := tmp;
+  end;
+
+  if sdqe = 0 then
+  begin
+    Self.resize(slen);
+    Self.reallocate(scap);
+  end
+  else begin
+    dqe.resize(slen);
+    dqe.reallocate(scap);
+  end;
 end;
 
 end.

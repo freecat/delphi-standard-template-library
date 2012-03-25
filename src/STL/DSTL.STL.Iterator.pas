@@ -42,16 +42,20 @@ type
 
   TIteratorHandle<T> = class;
   TIteratorHandle<T1, T2> = class;
-  IteratorStucture = (isVector, isList, isMap, isSet, isHash);
+  IteratorStructure = (isVector, isList, isMap, isSet, isHash);
+
+  TIteratorFlag = (ifBidirectional, ifRandom);
+  TIteratorFlags = set of TIteratorFlag;
 
   TIterator<T> = record
     handle: TIteratorHandle<T>;
+    flags: TIteratorFlags;
     class operator Implicit(a: TIterator<T>): T;
     class operator Inc(a: TIterator<T>): TIterator<T>;
     class operator Dec(a: TIterator<T>): TIterator<T>;
     class operator Equal(a: TIterator<T>; b: TIterator<T>): Boolean;
     class operator NotEqual(a: TIterator<T>; b: TIterator<T>): Boolean;
-    case IteratorStucture of
+    case IteratorStructure of
       isVector:
         (position: Integer);
       isList:
@@ -60,6 +64,7 @@ type
 
   TIterator<T1, T2> = record
     handle: TIteratorHandle<T1, T2>;
+    flags: TIteratorFlags;
     node: TTreeNode<T1, T2>;
     class operator Inc(a: TIterator<T1, T2>): TIterator<T1, T2>;
     class operator Dec(a: TIterator<T1, T2>): TIterator<T1, T2>;
@@ -135,6 +140,7 @@ type
     constructor Create;
   end;
 
+{$WARNINGS OFF}     // disable warning for TIterOperations.equals
   TIterOperations<T> = class
     procedure advance(var Iterator: TIterator<T>);
     procedure retreat(var Iterator: TIterator<T>);
@@ -156,6 +162,7 @@ type
     function equals(const iter1, iter2: TIterator<T1, T2>): Boolean;
     function distance(const iter1, iter2: TIterator<T1, T2>): integer;
   end;
+{$WARNINGS ON}
 
 implementation
 

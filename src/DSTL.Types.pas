@@ -52,7 +52,7 @@ begin
     vtChar:
       result := Ord(obj1.VChar) - Ord(obj2.VChar);
     vtString:
-      result := CompareStr(obj1.VString^, obj2.VString^);
+      result := CompareStr(string(obj1.VString^), string(obj2.VString^));
     vtPointer:
       result := integer(obj1.VPointer) - integer(obj2.VPointer);
     vtPChar:
