@@ -44,11 +44,21 @@ type
     procedure iretreat(var Iterator: TIterator<T>); override;
     function iget(const Iterator: TIterator<T>): T; override;
     function iequals(const iter1, iter2: TIterator<T>): boolean; override;
+    function idistance(const iter1, iter2: TIterator<T>): integer; override;
+
+    procedure swap_node(var it1, it2: TIterator<T>);
+    procedure _sort(comparator: IComparer<T>; l, r: integer);
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(n: integer; value: T); overload;
+    constructor Create(first, last: TIterator<T>); overload;
+    constructor Create(x: TList<T>); overload;
     destructor Destroy; override;
+    procedure assign(first, last: TIterator<T>); overload;
+    procedure assign(n: integer; u: T); overload;
     procedure add(const obj: T); override;
     procedure remove(const obj: T); override;
+    procedure remove_if(const pred: TPredicate<T>);
     procedure clear; override;
     function start: TIterator<T>; override;
     function finish: TIterator<T>; override;
@@ -65,17 +75,23 @@ type
     function pop_front: T;
     procedure push_back(const obj: T); override;
     procedure push_front(const obj: T);
-    procedure cut(_start, _finish: TIterator<T>);
-    procedure insert(Iterator: TIterator<T>; const obj: T);
-    function _erase(it: TIterator<T>): TIterator<T>;
-    function erase(_start, _finish: TIterator<T>): TIterator<T>;
-    procedure merge(l: TList<T>);
+    procedure cut(var _start, _finish: TIterator<T>);
+    function insert(var Iterator: TIterator<T>; const obj: T): TIterator<T>; overload;
+    procedure insert(var Iterator: TIterator<T>; n: integer; const obj: T); overload;
+    procedure insert(var Iterator: TIterator<T>; first, last: TIterator<T>); overload;
+    function erase(var it: TIterator<T>): TIterator<T>; overload;
+    function erase(var _start, _finish: TIterator<T>): TIterator<T>; overload;
+    procedure merge(var l: TList<T>);   overload;
+    procedure merge(var l: TList<T>; comp: IComparer<T>);   overload;
     procedure reverse;
-    procedure _sort(comparator: IComparer<T>; l, r: integer);
     procedure sort; overload;
     procedure sort(comparator: IComparer<T>); overload;
-    procedure swap(l: TList<T>);
-    procedure unique;
+    procedure swap(var l: TList<T>);
+    procedure splice(var position: TIterator<T>;var x: TList<T>);  overload;
+    procedure splice(var position: TIterator<T>;var x: TList<T>;var i: TIterator<T>); overload;
+    procedure splice(var position: TIterator<T>;var x: TList<T>;var first, last: TIterator<T>); overload;
+    procedure unique;  overload;
+    procedure unique(bin_pred: TBinaryPredicate<T, T>); overload;
   end;
 
 {$ENDREGION}
@@ -88,6 +104,21 @@ constructor TList<T>.Create;
 begin
   head := nil;
   tail := nil;
+end;
+
+constructor TList<T>.Create(n: integer; value: T);
+begin
+  assign(n, value);
+end;
+
+constructor TList<T>.Create(first, last: TIterator<T>);
+begin
+  assign(first, last);
+end;
+
+constructor TList<T>.Create(x: TList<T>);
+begin
+  assign(x.start, x.finish);
 end;
 
 destructor TList<T>.Destroy;
@@ -118,6 +149,49 @@ end;
 function TList<T>.iequals(const iter1, iter2: TIterator<T>): boolean;
 begin
   result := iter1.node = iter2.node;
+end;
+
+function TList<T>.idistance(const iter1, iter2: TIterator<T>): integer;
+var
+  dist: integer;
+  iter: TIterator<T>;
+begin
+  dist := 0;
+  iter := iter1;
+  while iter <> iter2 do
+  begin
+    iadvance(iter);
+    inc(dist);
+  end;
+  inc(dist);
+  Result := dist;
+end;
+
+procedure TList<T>.assign(first, last: TIterator<T>);
+var
+  iter: TIterator<T>;
+begin
+  head := nil;
+  tail := nil;
+
+  iter := first;
+  Self.push_back(iter);
+  while iter <> last do
+  begin
+    iter.handle.iadvance(iter);
+    Self.push_back(iter);
+  end;
+end;
+
+procedure TList<T>.assign(n: integer; u: T);
+var
+  i: integer;
+begin
+  head := nil;
+  tail := nil;
+
+  for i := 0 to n - 1 do
+    Self.push_back(u);
 end;
 
 procedure TList<T>.add(const obj: T);
@@ -152,12 +226,54 @@ begin
       end;
     end;
     iadvance(tmp);
-  until (tmp.node = nil) or empty;
+  until (tmp.node = tail) or empty;
+  (* deal with tail *)
+  if comparer.Equals(tmp.node.obj, obj) then
+  begin
+    tail := tail.prev;
+    tail.next := nil;
+  end;
+end;
+
+procedure TList<T>.remove_if(const pred: TPredicate<T>);
+var
+  tmp: TIterator<T>;
+begin
+  tmp := start;
+  repeat
+    if pred(tmp.node.obj) then
+    begin
+      if tmp.node = head then
+      begin
+        head := head.next;
+        head.prev := nil;
+      end
+      else if tmp.node = tail then
+      begin
+        tail := tail.prev;
+        tail.next := nil;
+      end
+      else
+      begin
+        tmp.node.prev.next := tmp.node.next;
+        tmp.node.next.prev := tmp.node.prev;
+      end;
+    end;
+    iadvance(tmp);
+  until (tmp.node = tail) or empty;
+  (* deal with tail *)
+  if pred(tmp.node.obj) then
+  begin
+    tail := tail.prev;
+    tail.next := nil;
+  end;
 end;
 
 procedure TList<T>.clear;
+var
+  tmp: TIterator<T>;
 begin
-  head := nil;
+  Self.head := nil;
 end;
 
 function TList<T>.start: TIterator<T>;
@@ -319,35 +435,101 @@ begin
   end;
 end;
 
-procedure TList<T>.cut(_start, _finish: TIterator<T>);
+procedure TList<T>.cut(var _start, _finish: TIterator<T>);
 begin
   _start.node.next := _finish.node.next;
   _finish.node.prev := _start.node.prev;
 end;
 
-procedure TList<T>.insert(Iterator: TIterator<T>; const obj: T);
+function TList<T>.insert(var Iterator: TIterator<T>; const obj: T): TIterator<T>;
+var
+  tmp: TListNode<T>;
 begin
+  tmp := TListNode<T>.Create;
+  tmp.obj := obj;
+  tmp.prev := Iterator.node.prev;
+  tmp.next := Iterator.node;
+  Iterator.node.prev.next := tmp;
+  Iterator.node.prev := tmp;
+
+  Result.handle := self;
+  Result.node := tmp;
 end;
 
-function TList<T>._erase(it: TIterator<T>): TIterator<T>;
+procedure TList<T>.insert(var Iterator: TIterator<T>; n: integer; const obj: T);
+var
+  i: integer;
 begin
-
+  for i := 1 to n do
+  begin
+    insert(Iterator, obj);
+  end;
 end;
 
-function TList<T>.erase(_start, _finish: TIterator<T>): TIterator<T>;
+procedure TList<T>.insert(var Iterator: TIterator<T>; first, last: TIterator<T>);
+var
+  iter: TIterator<T>;
+  idx, i: integer;
 begin
-
+  iter := first;
+  while iter <> last do
+  begin
+    insert(Iterator, iter);
+    iter.handle.iadvance(iter);
+  end;
+  insert(Iterator, iter);
 end;
 
-procedure TList<T>.merge(l: TList<T>);
+function TList<T>.erase(var it: TIterator<T>): TIterator<T>;
 begin
-  tail.next := l.start.node;
-  l.start.node.prev := tail;
+  it.node.next.prev := it.node.prev;
+  it.node.prev.next := it.node.next;
+end;
+
+function TList<T>.erase(var _start, _finish: TIterator<T>): TIterator<T>;
+begin
+  _start.node.prev.next := _finish.node.next;
+  _finish.node.next.prev := _start.node.prev;
+end;
+
+procedure TList<T>.merge(var l: TList<T>);
+begin
+  tail.next := l.head;
+  l.head.prev := tail;
+  tail := l.finish.node;
+  Self.sort;
+end;
+
+procedure TList<T>.merge(var l: TList<T>; comp: IComparer<T>);
+begin
+  tail.next := l.head;
+  l.head.prev := tail;
+  tail := l.finish.node;
+  Self.sort(comp);
+end;
+
+procedure TList<T>.swap_node(var it1, it2: TIterator<T>);
+var
+  tmp: T;
+begin
+  tmp := it1.node.obj;
+  it1.node.obj := it2.node.obj;
+  it2.node.obj := tmp;
 end;
 
 procedure TList<T>.reverse;
+var
+  i: integer;
+  it1, it2: TIterator<T>;
 begin
-
+  it1.node := Self.head;
+  it2.node := Self.tail;
+  for i := 0 to size div 2 - 1 do
+  begin
+    swap_node(it1, it2);
+    iadvance(it1);
+    iretreat(it2);
+  end;
 end;
 
 procedure TList<T>._sort(comparator: IComparer<T>; l, r: integer);
@@ -387,14 +569,102 @@ begin
   _sort(comparator, 0, size - 1);
 end;
 
-procedure TList<T>.swap(l: TList<T>);
+procedure TList<T>.swap(var l: TList<T>);
+var
+  tmph, tmpt: TListNode<T>;
 begin
+  tmph := l.head;
+  tmpt := l.tail;
+  l.head := Self.head;
+  l.tail := Self.tail;
+  Self.head := tmph;
+  Self.tail := tmpt;
+end;
 
+procedure TList<T>.splice(var position: TIterator<T>;var x: TList<T>);
+begin
+  position.node.prev.next := x.head;
+  x.head.prev := position.node.prev;
+  position.node.prev := x.tail;
+  x.tail.next := position.node;
+  x.head := nil;
+  x.tail := nil;
+end;
+
+procedure TList<T>.splice(var position: TIterator<T>;var x: TList<T>;var i: TIterator<T>);
+begin
+  (* remove i from list *)
+  i.node.prev.next := i.node.next;
+  i.node.next.prev := i.node.prev;
+  (* insert i into list *)
+  i.node.prev := position.node.prev;
+  position.node.prev.next := i.node;
+  i.node.next := position.node;
+  position.node.prev := i.node;
+end;
+
+procedure TList<T>.splice(var position: TIterator<T>;var x: TList<T>;var first, last: TIterator<T>);
+begin
+  (* remove elements from list *)
+  first.node.prev.next := last.node.next;
+  last.node.next.prev := first.node.prev;
+  (* insert elements into list *)
+  position.node.prev.next := first.node;
+  first.node.prev := position.node.prev;
+  position.node.prev := last.node;
+  last.node.next := position.node;
 end;
 
 procedure TList<T>.unique;
+var
+  it1, it2, tmp: TIterator<T>;
+  d: boolean;
 begin
+  if Self.empty then exit;
 
+  it1.node := Self.head;
+  it2.node := Self.head.next;
+  d := false;
+
+  while it2.node <> nil do
+  begin
+    if it1 = it2 then
+    begin
+      tmp := it1;
+      it1.handle.iadvance(it1);
+      it2.handle.iadvance(it2);
+      erase(tmp);
+    end
+    else begin
+      it1.handle.iadvance(it1);
+      it2.handle.iadvance(it2);
+    end;
+  end;
+end;
+
+procedure TList<T>.unique(bin_pred: TBinaryPredicate<T, T>);
+var
+  it1, it2, tmp: TIterator<T>;
+begin
+  if Self.empty then exit;
+
+  it1.node := Self.head;
+  it2.node := Self.head.next;
+
+  while it2.node <> nil do
+  begin
+    if bin_pred(it1, it2) then
+    begin
+      tmp := it1;
+      it1.handle.iadvance(it1);
+      it2.handle.iadvance(it2);
+      erase(tmp);
+    end
+    else begin
+      it1.handle.iadvance(it1);
+      it2.handle.iadvance(it2);
+    end;
+  end;
 end;
 
 {$ENDREGION}

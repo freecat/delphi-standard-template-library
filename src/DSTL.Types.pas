@@ -36,6 +36,9 @@ type
   PObj = ^TBaseObject;
   ArrObject<T> = array [0 .. MaxInt div sizeof(TBaseObject) - 1] of T;
 
+  TPredicate<T> = function (p: T): boolean;
+  TBinaryPredicate<T1, T2> = function (p1: T1; p2: T2): boolean;
+
 function compare(obj1, obj2: TBaseObject): integer;
 
 implementation

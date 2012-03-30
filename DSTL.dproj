@@ -60,7 +60,7 @@
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<ItemGroup>
-			<DelphiCompile Include="DSTL.dpk">
+			<DelphiCompile Include="$(MainSource)">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="rtl.dcp"/>
@@ -151,4 +151,5 @@
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
 	</Project>
