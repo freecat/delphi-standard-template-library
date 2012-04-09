@@ -128,7 +128,10 @@ end;
 procedure TList<T>.iadvance(var Iterator: TIterator<T>);
 begin
   if Iterator.node.next = nil then
+  begin
+    Iterator.node := nil;
     exit;
+  end;
   Iterator.node := Iterator.node.next;
   Iterator.handle := self;
 end;
@@ -136,7 +139,10 @@ end;
 procedure TList<T>.iretreat(var Iterator: TIterator<T>);
 begin
   if Iterator.node.prev = nil then
+  begin
+    Iterator.node := nil;
     exit;
+  end;
   Iterator.node := Iterator.node.prev;
   Iterator.handle := self;
 end;
@@ -226,13 +232,7 @@ begin
       end;
     end;
     iadvance(tmp);
-  until (tmp.node = tail) or empty;
-  (* deal with tail *)
-  if comparer.Equals(tmp.node.obj, obj) then
-  begin
-    tail := tail.prev;
-    tail.next := nil;
-  end;
+  until (tmp.node = nil) or empty;
 end;
 
 procedure TList<T>.remove_if(const pred: TPredicate<T>);
@@ -260,13 +260,7 @@ begin
       end;
     end;
     iadvance(tmp);
-  until (tmp.node = tail) or empty;
-  (* deal with tail *)
-  if pred(tmp.node.obj) then
-  begin
-    tail := tail.prev;
-    tail.next := nil;
-  end;
+  until (tmp.node = nil) or empty;
 end;
 
 procedure TList<T>.clear;
@@ -483,13 +477,17 @@ end;
 function TList<T>.erase(var it: TIterator<T>): TIterator<T>;
 begin
   it.node.next.prev := it.node.prev;
+  Result.node := it.node.next;
+  Result.handle := self;
   it.node.prev.next := it.node.next;
 end;
 
 function TList<T>.erase(var _start, _finish: TIterator<T>): TIterator<T>;
 begin
-  _start.node.prev.next := _finish.node.next;
-  _finish.node.next.prev := _start.node.prev;
+  _start.node.prev.next := _finish.node;
+  Result.node := _finish.node;
+  Result.handle := self;
+  _finish.node.prev := _start.node.prev;
 end;
 
 procedure TList<T>.merge(var l: TList<T>);

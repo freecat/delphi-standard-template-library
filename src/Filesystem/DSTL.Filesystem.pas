@@ -25,7 +25,7 @@
   *  along with Delphi Standard Template Library.                               *
   *  If not, see <http://www.gnu.org/licenses/>.                                *
   ******************************************************************************* }
-unit DSTL.Filesystem.Filesystem;
+unit DSTL.Filesystem;
 
 interface
 

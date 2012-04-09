@@ -66,7 +66,7 @@
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<Debugger_DebugSourcePath>D:\My Documents\src\DSTL\src\;D:\My Documents\src\DSTL\src\STL\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+			<Debugger_DebugSourcePath>D:\My Documents\src\DSTL\src\;D:\My Documents\src\DSTL\src\STL\;D:\My Documents\src\DSTL\src\Algorithm\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
 		</PropertyGroup>
 		<ItemGroup>
 			<DelphiCompile Include="$(MainSource)">

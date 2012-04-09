@@ -5,7 +5,7 @@ program test;
 uses
   SysUtils,
   DSTL.STL.Iterator,
-  DSTL.Algorithm.Algorithm,
+  DSTL.Algorithm,
   DSTL.STL.List;
 
 procedure writeint(int: integer);
@@ -19,6 +19,21 @@ var
 begin
   if l.empty then exit;
   ia.for_each(l.start, l.finish, @writeint);
+  writeln;
+end;
+
+procedure writereal(r: real);
+begin
+  write(r, ' ');
+end;
+
+procedure printrlist(l: TList<real>);
+var
+  ia: TIterAlgorithms<real>;
+begin
+  ia := TIterAlgorithms<Real>.Create;
+  if l.empty then exit;
+  ia.for_each(l.start, l.finish, @writereal);
   writeln;
 end;
 
@@ -142,7 +157,7 @@ begin
   writeln('splice test');
   for i := 1 to 4 do
     mylist1.push_back(i);
-  for i := 1 to 30 do
+  for i := 1 to 3 do
     mylist2.push_back(i * 10);
 
   writeln('before splicing');
@@ -232,6 +247,46 @@ begin
   writeln;
 end;
 
+procedure unique_test;
+  function same_integral_part(p1, p2: real): boolean;
+  begin
+    Result := trunc(p1) = trunc(p2);
+  end;
+
+  function is_near(p1, p2: real): boolean;
+  begin
+    Result := abs(p1 - p2) < 5;
+  end;
+var
+  mylist: TList<real>;
+begin
+  writeln('unique test');
+  mylist := TList<real>.Create;
+
+  mylist.push_back(12.15);
+  mylist.push_back(2.72);
+  mylist.push_back(73.0);
+  mylist.push_back(12.77);
+  mylist.push_back(3.14);
+  mylist.push_back(12.77);
+  mylist.push_back(73.35);
+  mylist.push_back(72.25);
+  mylist.push_back(15.3);
+  mylist.push_back(72.25);
+  writeln('before unique');
+  printrlist(mylist);                // 15 36 7 17 20 39 4 1
+
+  mylist.sort;
+  mylist.unique;
+  mylist.unique(@same_integral_part);
+  mylist.unique(@is_near);
+
+  writeln('after unique');
+  printrlist(mylist);
+
+  writeln;
+end;
+
 procedure reverse_test;
 var
   mylist: TList<integer>;
@@ -259,9 +314,10 @@ begin
   insert_test;
   erase_test;
   swap_test;
-  //splice_test;
+  splice_test;
   remove_test;
   remove_if_test;
+  //unique_test;
   reverse_test;
   readln;
 end.
