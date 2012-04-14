@@ -441,10 +441,36 @@ var
 begin
   tmp := TListNode<T>.Create;
   tmp.obj := obj;
-  tmp.prev := Iterator.node.prev;
-  tmp.next := Iterator.node;
-  Iterator.node.prev.next := tmp;
-  Iterator.node.prev := tmp;
+  (* empty list *)
+  if Self.empty then
+  begin
+    Self.head := tmp;
+    Self.tail := tmp;
+    Self.head.prev := nil;
+    Self.tail.next := nil;
+  end
+  (* insert to the head *)
+  else if Iterator.node = Self.head then
+  begin
+    Self.head.prev := tmp;
+    tmp.next := Self.head;
+    Self.head := tmp;
+    Self.head.prev := nil;
+  end
+  (* insert to the tail *)
+  else if Iterator.node = Self.tail then
+  begin
+    Self.tail.next := tmp;
+    tmp.prev := Self.tail;
+    Self.tail := tmp;
+    Self.tail.next := nil;
+  end
+  else begin
+    tmp.prev := Iterator.node.prev;
+    tmp.next := Iterator.node;
+    Iterator.node.prev.next := tmp;
+    Iterator.node.prev := tmp;
+  end;
 
   Result.handle := self;
   Result.node := tmp;
@@ -581,36 +607,66 @@ end;
 
 procedure TList<T>.splice(var position: TIterator<T>;var x: TList<T>);
 begin
-  position.node.prev.next := x.head;
+  (*
+  if Self.empty then
+  begin
+    exit;
+  end;
+  if position.node = nil then position.node := TListNode<T>.Create;
+  if position.node.prev <> nil then position.node.prev.next := x.head;
   x.head.prev := position.node.prev;
   position.node.prev := x.tail;
   x.tail.next := position.node;
   x.head := nil;
   x.tail := nil;
+  *)
+  Self.insert(position, x.start, x.finish);
+  x.clear;
 end;
 
 procedure TList<T>.splice(var position: TIterator<T>;var x: TList<T>;var i: TIterator<T>);
 begin
-  (* remove i from list *)
-  i.node.prev.next := i.node.next;
-  i.node.next.prev := i.node.prev;
-  (* insert i into list *)
+  (*
+  if Self.empty then
+  begin
+    Self.head := i.node;
+    Self.tail := i.node;
+    Self.head.prev := nil;
+    Self.tail.next := nil;
+    exit;
+  end;
+  if i.node.prev <> nil then i.node.prev.next := i.node.next;
+  if i.node.next <> nil then i.node.next.prev := i.node.prev;
   i.node.prev := position.node.prev;
-  position.node.prev.next := i.node;
+  if position.node.prev <> nil then  position.node.prev.next := i.node;
   i.node.next := position.node;
-  position.node.prev := i.node;
+  if position.node.prev <> nil then position.node.prev := i.node;
+  *)
+  Self.insert(position, i);
+  x.erase(i);
 end;
 
 procedure TList<T>.splice(var position: TIterator<T>;var x: TList<T>;var first, last: TIterator<T>);
 begin
-  (* remove elements from list *)
-  first.node.prev.next := last.node.next;
-  last.node.next.prev := first.node.prev;
-  (* insert elements into list *)
-  position.node.prev.next := first.node;
+  (*
+  if Self.empty then
+  begin
+    Self.head := first.node;
+    Self.tail := last.node;
+    Self.head.prev := nil;
+    Self.tail.next := nil;
+    exit;
+  end;
+  if position.node = nil then position.node := TListNode<T>.Create;
+  if first.node.next <> nil then first.node.prev.next := last.node.next;
+  if last.node.next <> nil then last.node.next.prev := first.node.prev;
+  if position.node.prev <> nil then  position.node.prev.next := first.node;
   first.node.prev := position.node.prev;
   position.node.prev := last.node;
   last.node.next := position.node;
+  *)
+  Self.insert(position, first, last);
+  x.erase(first, last);
 end;
 
 procedure TList<T>.unique;
