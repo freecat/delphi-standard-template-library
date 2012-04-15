@@ -32,7 +32,7 @@ interface
 uses
 
   SysUtils, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.Iterator, DSTL.STL.Vector,
-  Generics.Defaults, Generics.Collections;
+  Generics.Defaults;
 
 type
 {$REGION 'TList<T>'}
@@ -298,7 +298,7 @@ end;
 
 function TList<T>.max_size: integer;
 begin
-  { TODO: max_size code here }
+  Result := MaxInt;
 end;
 
 procedure TList<T>.resize(const n: integer);
@@ -377,14 +377,15 @@ function TList<T>.pop_back: T;
 begin
   result := tail.obj;
   tail := tail.prev;
-  tail.next := nil;
+  if tail = nil then head := nil
+  else tail.next := nil;
 end;
 
 function TList<T>.pop_front: T;
 begin
   result := head.obj;
   head := head.next;
-  head.prev := nil;
+  if head <> nil then head.prev := nil;
 end;
 
 procedure TList<T>.push_back(const obj: T);
@@ -502,18 +503,51 @@ end;
 
 function TList<T>.erase(var it: TIterator<T>): TIterator<T>;
 begin
-  it.node.next.prev := it.node.prev;
-  Result.node := it.node.next;
   Result.handle := self;
-  it.node.prev.next := it.node.next;
+  (* list is empty - nothing to erase *)
+  if Self.empty then exit
+  (* head *)
+  else if it.node = Self.head then
+  begin
+    Self.head := Self.head.next;
+    if Self.head <> nil then
+    begin
+      Self.head.prev := nil;
+      Result.node := Self.head;
+    end;
+  end
+  (* tail *)
+  else if it.node = Self.tail then
+  begin
+    Self.tail := Self.tail.prev;
+    if Self.tail <> nil then
+    begin
+      Self.tail.next := nil;
+    end
+    (* tail == nil - list is empty now, set head to nil *)
+    else Self.head := nil;
+  end
+  else begin
+    it.node.next.prev := it.node.prev;
+    Result.node := it.node.next;
+    it.node.prev.next := it.node.next;
+  end;
 end;
 
 function TList<T>.erase(var _start, _finish: TIterator<T>): TIterator<T>;
 begin
-  _start.node.prev.next := _finish.node;
-  Result.node := _finish.node;
   Result.handle := self;
-  _finish.node.prev := _start.node.prev;
+  if Self.empty then exit
+  else if _start.node = Self.head then
+  begin
+    Self.head := _finish.node;
+    Result.node := _finish.node;
+  end
+  else begin
+    _start.node.prev.next := _finish.node;
+    Result.node := _finish.node;
+    _finish.node.prev := _start.node.prev;
+  end;
 end;
 
 procedure TList<T>.merge(var l: TList<T>);
@@ -667,6 +701,7 @@ begin
   *)
   Self.insert(position, first, last);
   x.erase(first, last);
+  x.erase(last);
 end;
 
 procedure TList<T>.unique;

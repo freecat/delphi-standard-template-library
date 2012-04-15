@@ -54,6 +54,7 @@ contains
   DSTL.STL.RBTree in 'src\STL\DSTL.STL.RBTree.pas',
   DSTL.Utils.Range in 'src\Utils\DSTL.Utils.Range.pas',
   DSTL.STL.Map in 'src\STL\DSTL.STL.Map.pas',
-  DSTL.STL.Sets in 'src\STL\DSTL.STL.Sets.pas';
+  DSTL.STL.Sets in 'src\STL\DSTL.STL.Sets.pas',
+  DSTL.Utils.StopWatch in 'src\Utils\DSTL.Utils.StopWatch.pas';
 
 end.
