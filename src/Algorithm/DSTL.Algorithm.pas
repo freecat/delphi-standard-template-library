@@ -79,7 +79,7 @@ begin
   while not(op.equals(first, last)) do
   begin
     op.advance(first);
-    f(first);
+    f(first.handle.iget(first));
   end;
 end;
 

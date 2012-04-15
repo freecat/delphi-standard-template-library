@@ -1,6 +1,7 @@
 program test;
 
 {$APPTYPE CONSOLE}
+{$OPTIMIZATION OFF}
 
 uses
   SysUtils,
@@ -24,7 +25,7 @@ end;
 
 procedure writereal(r: real);
 begin
-  write(r, ' ');
+  write(r:0:2, ' ');
 end;
 
 procedure printrlist(l: TList<real>);

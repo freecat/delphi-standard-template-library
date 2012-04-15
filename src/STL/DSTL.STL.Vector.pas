@@ -30,7 +30,7 @@ unit DSTL.STL.Vector;
 interface
 
 uses
-  Windows, DSTL.Types, DSTL.STL.Iterator, DSTL.Exception;
+  Windows, DSTL.Types, DSTL.STL.Iterator, DSTL.Exception, DSTL.STL.Alloc;
 
 type
   TSequence<T> = class(TContainer<T>)
@@ -53,6 +53,7 @@ type
   protected
     fItems: ^arrObject<T>;
     len, cap: Integer;
+    allocator: IAllocator<T>;
 
     procedure iadvance(var Iterator: TIterator<T>); override;
     procedure iretreat(var Iterator: TIterator<T>); override;
@@ -63,7 +64,8 @@ type
     procedure set_item(idx: integer; const value: T);
     procedure reallocate(sz: integer);
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(alloc: IAllocator<T>);   overload;
     destructor Destroy; override;
     procedure assign(first, last: TIterator<T>); overload;
     procedure assign(n: integer; u: T); overload;
@@ -177,7 +179,18 @@ end;
   ****************************************************************************** }
 constructor TVector<T>.Create;
 begin
-  getMem(fItems, defaultArrSize * sizeOf(T));
+  allocator := TAllocator<T>.Create;
+  fItems := allocator.allocate(defaultArrSize * sizeOf(T));
+  //getMem(fItems, defaultArrSize * sizeOf(T));
+  len := 0;
+  cap := defaultArrSize;
+end;
+
+constructor TVector<T>.Create(alloc: IAllocator<T>);
+begin
+  allocator := alloc;
+  fItems := allocator.allocate(defaultArrSize * sizeOf(T));
+  //getMem(fItems, defaultArrSize * sizeOf(T));
   len := 0;
   cap := defaultArrSize;
 end;

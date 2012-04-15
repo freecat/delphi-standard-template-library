@@ -1,0 +1,4 @@
+LIST OF KNOWN BUGS
+==================
+
+v0.35 TList<real>: "Floating Point Stack Check" exception

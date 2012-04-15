@@ -88,6 +88,7 @@
 			<DCCReference Include="src\STL\DSTL.STL.Map.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Sets.pas"/>
 			<DCCReference Include="src\Utils\DSTL.Utils.StopWatch.pas"/>
+			<DCCReference Include="src\STL\DSTL.STL.Alloc.pas"/>
 			<None Include="src\DSTL.inc"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
@@ -117,7 +118,7 @@
 						<VersionInfo Name="MajorVer">0</VersionInfo>
 						<VersionInfo Name="MinorVer">1</VersionInfo>
 						<VersionInfo Name="Release">0</VersionInfo>
-						<VersionInfo Name="Build">14</VersionInfo>
+						<VersionInfo Name="Build">15</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -129,7 +130,7 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription"/>
-						<VersionInfoKeys Name="FileVersion">0.1.0.14</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">0.1.0.15</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright"/>
 						<VersionInfoKeys Name="LegalTrademarks"/>
