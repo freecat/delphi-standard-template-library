@@ -31,17 +31,24 @@ interface
 
 uses SysUtils;
 
+type
+  EDSTLException = class(Exception)
+
+  end;
+
 const
-  errornr = 4;
+  errornr = 5;
   E_OUT_OF_RANGE = $1;
   E_INVALID_ARG = $2;
   E_FILE_NOT_FOUND = $3;
   E_OUT_OF_MEMORY = $4;
+  E_OUT_OF_BOUND = $5;
 
   exception_msg: array [1 .. errornr] of string = ('Out of range.',
     'Invalid argument: %s.',
     'File ''%s'' not found.',
-    'Out of memory.');
+    'Out of memory.',
+    'Out of bound.');
 
 procedure raise_exception(errno: integer); overload;
 procedure raise_exception(errno: integer; args: array of const); overload;
@@ -50,7 +57,7 @@ implementation
 
 procedure raise_exception(errno: integer);
 begin
-  raise Exception.Create(exception_msg[errno]);
+  raise EDSTLException.Create(exception_msg[errno]);
 end;
 
 procedure raise_exception(errno: integer; args: array of const);
@@ -79,7 +86,7 @@ begin
         end;
     end;
   end;
-  raise Exception.Create(str);
+  raise EDSTLException.Create(str);
 end;
 
 end.

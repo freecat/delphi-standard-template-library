@@ -75,11 +75,10 @@ procedure TIterAlgorithms<T>.for_each(first, last: TIterator<T>; f: Func<T>);
 var
   op: TIterOperations<T>;
 begin
-  f(first);
   while not(op.equals(first, last)) do
   begin
-    op.advance(first);
     f(first.handle.iget(first));
+    op.advance(first);
   end;
 end;
 

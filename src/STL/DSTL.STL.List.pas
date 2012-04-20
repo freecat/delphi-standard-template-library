@@ -35,10 +35,12 @@ uses
   Generics.Defaults;
 
 type
+
 {$REGION 'TList<T>'}
   TList<T> = class(TSequence<T>)
   protected
     head, tail: TListNode<T>;
+    fin_node: TListNode<T>; (* the past-the-end element *)
 
     procedure iadvance(var Iterator: TIterator<T>); override;
     procedure iretreat(var Iterator: TIterator<T>); override;
@@ -104,20 +106,24 @@ constructor TList<T>.Create;
 begin
   head := nil;
   tail := nil;
+  fin_node := TListNode<T>.Create;
 end;
 
 constructor TList<T>.Create(n: integer; value: T);
 begin
+  fin_node := TListNode<T>.Create;
   assign(n, value);
 end;
 
 constructor TList<T>.Create(first, last: TIterator<T>);
 begin
+  fin_node := TListNode<T>.Create;
   assign(first, last);
 end;
 
 constructor TList<T>.Create(x: TList<T>);
 begin
+  fin_node := TListNode<T>.Create;
   assign(x.start, x.finish);
 end;
 
@@ -127,24 +133,39 @@ end;
 
 procedure TList<T>.iadvance(var Iterator: TIterator<T>);
 begin
-  if Iterator.node.next = nil then
+  (* tail - return an iterator referring to the past-the-end element
+      in the list container *)
+  if Iterator.node = Self.tail then
+  begin
+    Iterator.node := Self.fin_node;
+  end
+  else if Iterator.node.next = nil then
   begin
     Iterator.node := nil;
     exit;
+  end
+  else begin
+    Iterator.node := Iterator.node.next;
+    Iterator.handle := self;
   end;
-  Iterator.node := Iterator.node.next;
-  Iterator.handle := self;
 end;
 
 procedure TList<T>.iretreat(var Iterator: TIterator<T>);
 begin
-  if Iterator.node.prev = nil then
+  (* fin_node - return an iterator referring to the tail *)
+  if Iterator.node = Self.fin_node then
+  begin
+    Iterator.node := Self.tail;
+  end
+  else if Iterator.node.prev = nil then
   begin
     Iterator.node := nil;
     exit;
+  end
+  else begin
+    Iterator.node := Iterator.node.prev;
+    Iterator.handle := self;
   end;
-  Iterator.node := Iterator.node.prev;
-  Iterator.handle := self;
 end;
 
 function TList<T>.iget(const Iterator: TIterator<T>): T;
@@ -181,11 +202,10 @@ begin
   tail := nil;
 
   iter := first;
-  Self.push_back(iter);
   while iter <> last do
   begin
-    iter.handle.iadvance(iter);
     Self.push_back(iter);
+    iter.handle.iadvance(iter);
   end;
 end;
 
@@ -278,7 +298,7 @@ end;
 
 function TList<T>.finish: TIterator<T>;
 begin
-  result.node := tail;
+  result.node := fin_node;
   result.handle := self;
 end;
 

@@ -65,7 +65,10 @@ type
     procedure reallocate(sz: integer);
   public
     constructor Create; overload;
-    constructor Create(alloc: IAllocator<T>);   overload;
+    constructor Create(alloc: IAllocator<T>); overload;
+    constructor Create(n: integer; value: T); overload;
+    constructor Create(first, last: TIterator<T>); overload;
+    constructor Create(x: TVector<T>); overload;
     destructor Destroy; override;
     procedure assign(first, last: TIterator<T>); overload;
     procedure assign(n: integer; u: T); overload;
@@ -93,6 +96,7 @@ type
     function erase(_start, _finish: TIterator<T>): TIterator<T>; overload;
     procedure swap(var vec: TVector<T>);
     property items[idx: integer]: T read get_item write set_item; default;
+    function get_allocator: IAllocator<T>;
   end;
 
 implementation
@@ -195,6 +199,24 @@ begin
   cap := defaultArrSize;
 end;
 
+constructor TVector<T>.Create(n: integer; value: T);
+begin
+  allocator := TAllocator<T>.Create;
+  assign(n, value);
+end;
+
+constructor TVector<T>.Create(first, last: TIterator<T>);
+begin
+  allocator := TAllocator<T>.Create;
+  assign(first, last);
+end;
+
+constructor TVector<T>.Create(x: TVector<T>);
+begin
+  allocator := TAllocator<T>.Create;
+  assign(x.start, x.finish);
+end;
+
 destructor TVector<T>.Destroy;
 begin
   FreeMem(fItems, cap);
@@ -257,11 +279,10 @@ begin
   cap := defaultArrSize;
 
   iter := first;
-  Self.push_back(iter);
   while iter <> last do
   begin
-    iter.handle.iadvance(iter);
     Self.push_back(iter);
+    iter.handle.iadvance(iter);
   end;
 end;
 
@@ -368,8 +389,7 @@ end;
 
 function TVector<T>.at(const idx: Integer): T;
 begin
-  if idx > size then
-    exit;
+  if idx > size then raise_exception(E_OUT_OF_BOUND);
   result := fItems[idx];
 end;
 
@@ -413,7 +433,7 @@ begin
   idx := Iterator.position;
   for i := size - 1 downto idx do
     fItems[i + n] := fItems[i];
-  for i := idx to idx + n do
+  for i := idx to idx + n - 1 do
     fItems[i] := obj;
   inc(len, n);
 end;
@@ -431,7 +451,6 @@ begin
     iter.handle.iadvance(iter);
     inc(dist);
   end;
-  inc(dist);
 
   if len + dist > cap then reallocate(len + dist);
 
@@ -439,7 +458,7 @@ begin
   for i := size - 1 downto idx do
     fItems[i + dist] := fItems[i];
   iter := first;
-  for i := idx to idx + dist do
+  for i := idx to idx + dist - 1 do
   begin
     fItems[i] := iter;
     iter.handle.iadvance(iter);
@@ -465,8 +484,8 @@ var
   i: Integer;
 begin
   idx := start.position;
-  dist := _finish.position - _start.position + 1;
-  cnt := len - _finish.position;
+  dist := _finish.position - _start.position;
+  cnt := len - _finish.position + 1;
   for i := idx to idx + cnt do
     fItems[i] := fItems[i + dist];
   dec(len, dist);
@@ -512,6 +531,11 @@ begin
     vec.resize(slen);
     vec.reallocate(scap);
   end;
+end;
+
+function TVector<T>.get_allocator: IAllocator<T>;
+begin
+  Result := Self.allocator;
 end;
 
 end.
