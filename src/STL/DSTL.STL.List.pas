@@ -518,7 +518,6 @@ begin
     insert(Iterator, iter);
     iter.handle.iadvance(iter);
   end;
-  insert(Iterator, iter);
 end;
 
 function TList<T>.erase(var it: TIterator<T>): TIterator<T>;
@@ -721,7 +720,6 @@ begin
   *)
   Self.insert(position, first, last);
   x.erase(first, last);
-  x.erase(last);
 end;
 
 procedure TList<T>.unique;

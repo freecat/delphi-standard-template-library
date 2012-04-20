@@ -204,7 +204,7 @@ begin
   writeln('before removing');
   printlist(mylist);
 
-  mylist.remove(89);
+  mylist.remove(89);           (* 17 7 14 *)
 
   writeln('after removing');
   printlist(mylist);
