@@ -1,6 +1,0 @@
-Requirement:
-  Delphi 2010 or later
-
-How to install:
-1. Open DSTL.dproj with Delphi and compile it.
-2. Copy the files in .\dcu to lib\win32\debug and lib\win32\release 

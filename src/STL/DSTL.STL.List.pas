@@ -343,7 +343,6 @@ begin
     iadvance(iter);
     inc(i);
   end;
-  inc(i);
   result := i;
 end;
 
