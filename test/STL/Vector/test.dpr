@@ -60,6 +60,11 @@ begin
   printvec(myvector);
 end;
 
+procedure erase_test;
+begin
+
+end;
+
 begin
   assign_test;
   insert_test;

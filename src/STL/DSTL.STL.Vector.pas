@@ -62,7 +62,7 @@ type
 
     function get_item(idx: integer): T;
     procedure set_item(idx: integer; const value: T);
-    procedure reallocate(sz: integer);
+    function reallocate(sz: integer): boolean;
   public
     constructor Create; overload;
     constructor Create(alloc: IAllocator<T>); overload;
@@ -256,14 +256,16 @@ begin
   fItems[idx] := value;
 end;
 
-procedure TVector<T>.reallocate(sz: integer);
+function TVector<T>.reallocate(sz: integer): boolean;
 var
   oldcap: integer;
   olditems: pointer;
 begin
+  Result := true;
   if cap < sz then oldcap := cap else oldcap := sz;
   olditems := fItems;
-  GetMem(fItems, sz);
+  fItems := allocator.allocate(sz);
+  if fItems = nil then Result := false;
   CopyMemory(fItems, olditems, oldcap);
   FreeMem(olditems, oldcap);
   cap := sz;
@@ -400,8 +402,18 @@ begin
 end;
 
 procedure TVector<T>.push_back(const obj: T);
+var
+  tmp: boolean;
 begin
-  if len = cap then reallocate((cap + 1) * sizeof(T));
+  if len = cap then
+  begin
+    (* twice bigger *)
+    tmp := reallocate(cap * sizeof(T) * 2);
+    (* not enough memory *)
+    if not tmp then
+      tmp := reallocate((cap + 1) * sizeof(T));
+    if not tmp then raise_exception(E_OUT_OF_MEMORY);
+  end;
   fItems[len] := obj;
   inc(len);
 end;
@@ -410,8 +422,17 @@ function TVector<T>.insert(Iterator: TIterator<T>; const obj: T): TIterator<T>;
 var
   idx: Integer;
   i: Integer;
+  tmp: boolean;
 begin
-  if cap = len then reallocate((cap + 1) * sizeof(T));
+  if len = cap then
+  begin
+    (* twice bigger *)
+    tmp := reallocate(cap * sizeof(T) * 2);
+    (* not enough memory *)
+    if not tmp then
+      tmp := reallocate((cap + 1) * sizeof(T));
+    if not tmp then raise_exception(E_OUT_OF_MEMORY);
+  end;
 
   idx := Iterator.position;
   for i := size - 1 downto idx do
@@ -428,7 +449,8 @@ var
   idx: Integer;
   i: Integer;
 begin
-  if len + n > cap then reallocate(len + n);
+  if len + n > cap then
+    if not reallocate(len + n) then raise_exception(E_OUT_OF_MEMORY);
 
   idx := Iterator.position;
   for i := size - 1 downto idx do
@@ -452,7 +474,8 @@ begin
     inc(dist);
   end;
 
-  if len + dist > cap then reallocate(len + dist);
+  if len + dist > cap then
+    if not reallocate(len + dist) then raise_exception(E_OUT_OF_MEMORY);
 
   idx := Iterator.position;
   for i := size - 1 downto idx do
@@ -512,8 +535,10 @@ begin
   end;
   if (Self.len > vec.len) then vec.resize(Self.len)
   else  if (Self.len < vec.len) then Self.resize(vec.len);
-  if (Self.len > Self.cap) then Self.reallocate(Self.len);
-  if (vec.len > vec.cap) then vec.reallocate(vec.len);
+  if (Self.len > Self.cap) then
+    if not Self.reallocate(Self.len) then raise_exception(E_OUT_of_MEMORY);
+  if (vec.len > vec.cap) then
+    if not vec.reallocate(vec.len) then raise_exception(E_OUT_OF_MEMORY);
 
   for i := 0 to cnt - 1 do
   begin
