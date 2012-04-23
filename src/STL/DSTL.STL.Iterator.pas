@@ -55,6 +55,7 @@ type
     class operator Dec(a: TIterator<T>): TIterator<T>;
     class operator Equal(a: TIterator<T>; b: TIterator<T>): Boolean;
     class operator NotEqual(a: TIterator<T>; b: TIterator<T>): Boolean;
+    class operator Add(a: TIterator<T>; b: integer): TIterator<T>;
     case IteratorStructure of
       isVector:
         (position: Integer);
@@ -281,6 +282,15 @@ end;
 class operator TIterator<T>.NotEqual(a: TIterator<T>; b: TIterator<T>): Boolean;
 begin
   Result := not a.handle.iequals(a, b);
+end;
+
+class operator TIterator<T>.Add(a: TIterator<T>; b: integer): TIterator<T>;
+var
+  i: integer;
+begin
+  Result := a;
+  for i := 1 to b do
+    Result.handle.iadvance(Result);
 end;
 
 class operator TIterator<T1, T2>.Inc(a: TIterator<T1, T2>): TIterator<T1, T2>;

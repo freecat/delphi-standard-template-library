@@ -30,14 +30,15 @@ unit DSTL.STL.Stack;
 interface
 
 uses
-  DSTL.STL.Deque;
+  DSTL.STL.Vector, DSTL.STL.Deque;
 
 type
   TStack<T> = class
   protected
-    Stack: TDeque<T>;
+    Stack: TSequence<T>;
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(container: TSequence<T>); overload;
     function empty: boolean;
     function size: integer;
     function top: T;
@@ -49,7 +50,14 @@ implementation
 
 constructor TStack<T>.Create;
 begin
-  Stack := TDeque<T>.Create;
+  Stack := TDeque<T>.Create;  (* if no container class is specified for
+                                      a particular stack class, the standard
+                                      container class template deque is used  *)
+end;
+
+constructor TStack<T>.Create(container: TSequence<T>);
+begin
+  Stack := container.Create;
 end;
 
 function TStack<T>.empty: boolean;

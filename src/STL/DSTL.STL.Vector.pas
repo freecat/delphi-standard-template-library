@@ -45,6 +45,8 @@ type
     function size: Integer; virtual;
     function empty: boolean; virtual;
     function at(const idx: Integer): T; virtual;
+    function pop_front: T; virtual;
+    procedure push_front(const obj: T); virtual;
     function pop_back: T; virtual;
     procedure push_back(const obj: T); virtual;
   end;
@@ -150,6 +152,14 @@ begin
 end;
 
 function TSequence<T>.at(const idx: Integer): T;
+begin
+end;
+
+function TSequence<T>.pop_front: T;
+begin
+end;
+
+procedure TSequence<T>.push_front(const obj: T);
 begin
 end;
 
@@ -265,7 +275,7 @@ begin
   if cap < sz then oldcap := cap else oldcap := sz;
   olditems := fItems;
   fItems := allocator.allocate(sz);
-  if fItems = nil then Result := false;
+  if fItems = nil then exit(false);
   CopyMemory(fItems, olditems, oldcap);
   FreeMem(olditems, oldcap);
   cap := sz;

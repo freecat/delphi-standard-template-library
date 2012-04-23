@@ -9,9 +9,6 @@ uses
   DSTL.STL.Vector,
   DSTL.STL.Iterator;
 
-var
-  v: TVector<integer>;
-
 procedure printvec(vec: TVector<integer>);
 var
   i: integer;
@@ -57,16 +54,45 @@ begin
   inc(it); inc(it);
   anothervec := TVector<integer>.Create(2, 400);
   myvector.insert(it, anothervec.start, anothervec.finish);
-  printvec(myvector);
+  printvec(myvector);    (* 300 300 400 400 200 100 100 100 *)
+  writeln;
 end;
 
 procedure erase_test;
+var
+  i: integer;
+  myvector: TVector<integer>;
 begin
+  writeln('erase test');
+  myvector := TVector<integer>.Create;
+  for i := 1 to 10 do
+    myvector.push_back(i);
 
+  myvector.erase(myvector.start + 5);
+  myvector.erase(myvector.start, myvector.start + 3);
+
+  printvec(myvector); (* 4 5 7 8 9 10 *)
+  writeln;
+end;
+
+procedure swap_test;
+var
+  i: integer;
+  first, second: TVector<integer>;
+begin
+  writeln('swap test');
+  first := TVector<integer>.Create(3, 100);
+  second := TVector<integer>.Create(5, 200);
+  first.swap(second);
+  write('first contains: '); printvec(first);
+  write('second contains: '); printvec(second);
+  writeln;
 end;
 
 begin
   assign_test;
   insert_test;
+  erase_test;
+  swap_test;
   readln;
 end.

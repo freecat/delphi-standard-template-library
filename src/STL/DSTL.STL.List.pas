@@ -74,9 +74,9 @@ type
     function at(const idx: integer): T; override;
     function get(const idx: integer): TIterator<T>;
     function pop_back: T; override;
-    function pop_front: T;
+    function pop_front: T;  override;
     procedure push_back(const obj: T); override;
-    procedure push_front(const obj: T);
+    procedure push_front(const obj: T); override;
     procedure cut(var _start, _finish: TIterator<T>);
     function insert(var Iterator: TIterator<T>; const obj: T): TIterator<T>; overload;
     procedure insert(var Iterator: TIterator<T>; n: integer; const obj: T); overload;
@@ -129,6 +129,7 @@ end;
 
 destructor TList<T>.Destroy;
 begin
+  clear;
 end;
 
 procedure TList<T>.iadvance(var Iterator: TIterator<T>);
@@ -285,9 +286,17 @@ end;
 
 procedure TList<T>.clear;
 var
-  tmp: TIterator<T>;
+  cur, tmp: TListNode<T>;
 begin
-  Self.head := nil;
+  cur := head;
+  while cur <> tail do
+  begin
+    tmp := cur;
+    cur := cur.next;
+    tmp.Free;
+  end;
+  cur.Free;
+  head := nil;
 end;
 
 function TList<T>.start: TIterator<T>;
