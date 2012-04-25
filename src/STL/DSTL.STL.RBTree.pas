@@ -209,8 +209,8 @@ begin
     cmp := FComparator.compare(Pair.first, x.Pair.first);
     if (cmp = 0) and (not FInsertAlways) then
     begin
-      x.Pair.second := Pair.second;
-      Exit;
+      //x.Pair.second := Pair.second;
+      Exit(false);
     end;
 
     comp := cmp < 0;
@@ -366,6 +366,7 @@ var
   io: TIterOperations<K, V>;
 begin
   r := equal_range(obj);
+  io := TIterOperations<K, V>.Create;
   result := io.distance(r.start, r.finish);
 end;
 

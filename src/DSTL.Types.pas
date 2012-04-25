@@ -29,7 +29,7 @@ unit DSTL.Types;
 
 interface
 
-uses SysUtils, Generics.Defaults, Generics.Collections;
+uses SysUtils, Generics.Defaults;
 
 type
   TBaseObject = TVarRec;
@@ -38,6 +38,7 @@ type
 
   TPredicate<T> = function (p: T): boolean;
   TBinaryPredicate<T1, T2> = function (p1: T1; p2: T2): boolean;
+  TCompare<T> = function (left, right: T): integer;
 
 function compare(obj1, obj2: TBaseObject): integer;
 

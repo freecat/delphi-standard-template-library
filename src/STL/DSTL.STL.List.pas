@@ -191,7 +191,6 @@ begin
     iadvance(iter);
     inc(dist);
   end;
-  inc(dist);
   Result := dist;
 end;
 

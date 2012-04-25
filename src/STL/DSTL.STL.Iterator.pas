@@ -67,6 +67,7 @@ type
     handle: TIteratorHandle<T1, T2>;
     flags: TIteratorFlags;
     node: TTreeNode<T1, T2>;
+    class operator Implicit(a: TIterator<T1, T2>): TPair<T1, T2>;
     class operator Inc(a: TIterator<T1, T2>): TIterator<T1, T2>;
     class operator Dec(a: TIterator<T1, T2>): TIterator<T1, T2>;
     class operator Equal(a: TIterator<T1, T2>; b: TIterator<T1, T2>): Boolean;
@@ -291,6 +292,11 @@ begin
   Result := a;
   for i := 1 to b do
     Result.handle.iadvance(Result);
+end;
+
+class operator TIterator<T1, T2>.Implicit(a: TIterator<T1, T2>): TPair<T1, T2>;
+begin
+  Result := a.handle.iget(a);
 end;
 
 class operator TIterator<T1, T2>.Inc(a: TIterator<T1, T2>): TIterator<T1, T2>;

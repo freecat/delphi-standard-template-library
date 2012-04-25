@@ -132,7 +132,7 @@
 			<DCCReference Include="src\UI\DSTL.UI.Console.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.RBTree.pas"/>
 			<DCCReference Include="src\Utils\DSTL.Utils.Range.pas"/>
-			<DCCReference Include="src\STL\DSTL.STL.Map.pas"/>
+			<DCCReference Include="src\STL\DSTL.STL.Maps.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Sets.pas"/>
 			<DCCReference Include="src\Utils\DSTL.Utils.StopWatch.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Alloc.pas"/>

@@ -46,6 +46,7 @@ type
     procedure for_each(first, last: TIterator<T1, T2>; f: Func<T1, T2>);
   end;
 {$ENDREGION}
+
 {$REGION 'TMinMax<T>'}
 
   TMinMax<T> = class
@@ -54,6 +55,7 @@ type
   end;
 
 {$ENDREGION}
+
 {$REGION 'String Algorithm'}
 
 function to_upper(s: string): string;
@@ -88,6 +90,7 @@ begin
   { TODO: for_each for TIterAlgorithm<T1, T2> }
 end;
 {$ENDREGION}
+
 {$REGION 'TMinMax<T>'}
 
 function TMinMax<T>.min(data: array of T): T;
@@ -119,6 +122,7 @@ begin
 end;
 
 {$ENDREGION}
+
 {$REGION 'String Algorithm'}
 
 function upcase(c: char): char;

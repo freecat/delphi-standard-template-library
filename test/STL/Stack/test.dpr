@@ -10,15 +10,21 @@ uses
 
 var
   s: TStack<Integer>;
+  i: integer;
 
 begin
   try
-    s := TStack<Integer>.Create;
-    s.push(1);
-    s.push(10);
-    writeln(s.top);
-    s.pop;
-    writeln(s.top);
+    s := TStack<integer>.Create;
+    for i := 1 to 5 do
+    begin
+      s.push(i);
+    end;
+    writeln(s.size);
+    while not s.empty do
+    begin
+      writeln(s.top);
+      s.pop;
+    end;
     readln;
   except
     on E: Exception do

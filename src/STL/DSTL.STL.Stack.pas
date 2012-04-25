@@ -35,7 +35,7 @@ uses
 type
   TStack<T> = class
   protected
-    Stack: TSequence<T>;
+    stack: TSequence<T>;
   public
     constructor Create; overload;
     constructor Create(container: TSequence<T>); overload;
@@ -50,39 +50,39 @@ implementation
 
 constructor TStack<T>.Create;
 begin
-  Stack := TDeque<T>.Create;  (* if no container class is specified for
+  stack := TDeque<T>.Create;  (* if no container class is specified for
                                       a particular stack class, the standard
                                       container class template deque is used  *)
 end;
 
 constructor TStack<T>.Create(container: TSequence<T>);
 begin
-  Stack := container.Create;
+  stack := container.Create;
 end;
 
 function TStack<T>.empty: boolean;
 begin
-  Result := Stack.empty;
+  Result := stack.empty;
 end;
 
 function TStack<T>.size: integer;
 begin
-  Result := Stack.size;
+  Result := stack.size;
 end;
 
 function TStack<T>.top: T;
 begin
-  Result := Stack.back;
+  Result := stack.back;
 end;
 
 procedure TStack<T>.push(x: T);
 begin
-  Stack.push_back(x);
+  stack.push_back(x);
 end;
 
 procedure TStack<T>.pop;
 begin
-  Stack.pop_back;
+  stack.pop_back;
 end;
 
 end.

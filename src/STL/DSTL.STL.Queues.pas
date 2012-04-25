@@ -30,14 +30,15 @@ unit DSTL.STL.Queues;
 interface
 
 uses
-  DSTL.STL.Deque;
+  DSTL.STL.Vector, DSTL.STL.Deque;
 
 type
   TQueue<T> = class
   protected
-    Queue: TDeque<T>;
+    queue: TSequence<T>;
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(container: TSequence<T>); overload;
     function empty: boolean;
     function size: integer;
     function front: T;
@@ -48,9 +49,10 @@ type
 
   TPriorityQueue<T> = class
   protected
-    Queue: TDeque<T>;
+    queue: TSequence<T>;
   public
-    constructor Create;
+    constructor Create;  overload;
+    constructor Create(container: TSequence<T>); overload;
     function empty: boolean;
     function size: integer;
     function front: T;
@@ -63,73 +65,82 @@ implementation
 
 constructor TQueue<T>.Create;
 begin
-  Queue := TDeque<T>.Create;
+  queue := TDeque<T>.Create;
 end;
 
-function TQueue<T>.empty: boolean;
+constructor TQueue<T>.Create(container: TSequence<T>);
 begin
-  Result := Queue.empty;
+  queue := container.Create;
+end;
+
+function Tqueue<T>.empty: boolean;
+begin
+  Result := queue.empty;
 end;
 
 function TQueue<T>.size: integer;
 begin
-  Result := Queue.size;
+  Result := queue.size;
 end;
 
 function TQueue<T>.front: T;
 begin
-  Result := Queue.front;
+  Result := queue.front;
 end;
 
 function TQueue<T>.back: T;
 begin
-  Result := Queue.back;
+  Result := queue.back;
 end;
 
 procedure TQueue<T>.push(x: T);
 begin
-  Queue.push_back(x);
+  queue.push_back(x);
 end;
 
 procedure TQueue<T>.pop;
 begin
-  Queue.pop_front;
+  queue.pop_front;
 end;
 
 constructor TPriorityQueue<T>.Create;
 begin
-  Queue := TDeque<T>.Create;
+  queue := TDeque<T>.Create;
+end;
+
+constructor TPriorityQueue<T>.Create(container: TSequence<T>);
+begin
+  queue := container.Create;
 end;
 
 function TPriorityQueue<T>.empty: boolean;
 begin
-  Result := Queue.empty;
+  Result := queue.empty;
 end;
 
 function TPriorityQueue<T>.size: integer;
 begin
-  Result := Queue.size;
+  Result := queue.size;
 end;
 
 function TPriorityQueue<T>.front: T;
 begin
-  Result := Queue.front;
+  Result := queue.front;
 end;
 
 function TPriorityQueue<T>.back: T;
 begin
-  Result := Queue.back;
+  Result := queue.back;
 end;
 
 procedure TPriorityQueue<T>.push(x: T);
 begin
-  Queue.push_back(x);
-  Queue.sort;
+  queue.push_back(x);
 end;
 
 procedure TPriorityQueue<T>.pop;
 begin
-  Queue.pop_front;
+  queue.pop_front;
 end;
 
 end.
