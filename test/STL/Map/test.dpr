@@ -5,7 +5,7 @@ program test;
 {$R *.res}
 
 uses
-  System.SysUtils, DSTL.STL.Maps, DSTL.Utils.Pair, DSTL.STL.Iterator;
+  System.SysUtils, DSTL.STL.Maps, DSTL.Utils.Pair, DSTL.STL.Iterator, DSTL.Exception;
 
 procedure printmap(m: TMap<char, integer>);
 var

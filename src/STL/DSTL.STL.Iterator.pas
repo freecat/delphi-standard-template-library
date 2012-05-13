@@ -30,7 +30,7 @@ unit DSTL.STL.Iterator;
 interface
 
 uses SysUtils, DSTL.Config, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.TreeNode,
-  DSTL.Utils.Pair;
+  DSTL.Utils.Pair, DSTL.STL.DequeMap;
 
 const
   defaultArrSize = 16;
@@ -42,7 +42,7 @@ type
 
   TIteratorHandle<T> = class;
   TIteratorHandle<T1, T2> = class;
-  IteratorStructure = (isVector, isList, isMap, isSet, isHash);
+  IteratorStructure = (isVector, isDeque, isList, isMap, isSet, isHash);
 
   TIteratorFlag = (ifBidirectional, ifRandom);
   TIteratorFlags = set of TIteratorFlag;
@@ -56,10 +56,26 @@ type
     class operator Equal(a: TIterator<T>; b: TIterator<T>): Boolean;
     class operator NotEqual(a: TIterator<T>; b: TIterator<T>): Boolean;
     class operator Add(a: TIterator<T>; b: integer): TIterator<T>;
+    class operator Subtract(a: TIterator<T>; b: integer): TIterator<T>; overload;
+    class operator Subtract(a: TIterator<T>; b: TIterator<T>): integer; overload;
     case IteratorStructure of
       isVector:
+        (* position is the index of the object the iterator points to *)
         (position: Integer);
+      isDeque:
+        (* cur is the index of the object in the buffer
+         * first is the index of the first object in the buffer
+         * last is the index of the last object in the buffer
+         * bnode is the current map node
+         * buf_size is the buffer size of the deque
+         *)
+        (cur: integer;
+         first: integer;
+         last: integer;
+         bnode: TDequeMapNode<T>;
+         buf_size: integer;);
       isList:
+        (* node points to current node in the list *)
         (node: TListNode<T>);
   end;
 
@@ -74,14 +90,6 @@ type
     class operator NotEqual(a: TIterator<T1, T2>; b: TIterator<T1, T2>): Boolean;
   end;
 
-  (*
-   *
-   * When add a handler to TIteratorHandle,
-   * add it to
-   *  <1>: TContainer<T>
-   *  <2>: TIterOperations<T>
-   * too.
-   *)
   TIteratorHandle<T> = class
   protected
     procedure iadvance(var Iterator: TIterator<T>); virtual; abstract;
@@ -292,6 +300,20 @@ begin
   Result := a;
   for i := 1 to b do
     Result.handle.iadvance(Result);
+end;
+
+class operator TIterator<T>.Subtract(a: TIterator<T>; b: integer): TIterator<T>;
+var
+  i: integer;
+begin
+  Result := a;
+  for i := 1 to b do
+    Result.handle.iretreat(Result);
+end;
+
+class operator TIterator<T>.Subtract(a: TIterator<T>; b: TIterator<T>): integer;
+begin
+  Result := a.handle.idistance(b, a);
 end;
 
 class operator TIterator<T1, T2>.Implicit(a: TIterator<T1, T2>): TPair<T1, T2>;

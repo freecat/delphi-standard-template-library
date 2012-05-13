@@ -27,17 +27,22 @@
   ******************************************************************************* }
 unit DSTL.Types;
 
+(* some type definitions are here*)
 interface
 
 uses SysUtils, Generics.Defaults;
 
 type
+  (* do not use this *)
   TBaseObject = TVarRec;
   PObj = ^TBaseObject;
+
   ArrObject<T> = array [0 .. MaxInt div sizeof(TBaseObject) - 1] of T;
 
+  TSizeType = integer;
   TPredicate<T> = function (p: T): boolean;
   TBinaryPredicate<T1, T2> = function (p1: T1; p2: T2): boolean;
+  TBinaryFunction<Arg1, Arg2, Res> = function (p1: Arg1; p2: Arg2): Res;
   TCompare<T> = function (left, right: T): integer;
 
 function compare(obj1, obj2: TBaseObject): integer;

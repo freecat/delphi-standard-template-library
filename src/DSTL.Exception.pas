@@ -32,35 +32,44 @@ interface
 uses SysUtils;
 
 type
-  EDSTLException = class(Exception)
-
-  end;
+  EDSTLException = class(Exception) end;
+  EDSTLOutOfRangeException = class(EDSTLException) end;
+  EDSTLInvalidArgException = class(EDSTLException) end;
+  EDSTLFileNotFoundException = class(EDSTLException) end;
+  EDSTLOutOfMemoryException = class(EDSTLException) end;
+  EDSTLOutOfBoundException = class(EDSTLException) end;
+  EDSTLAllocateException = class(EDSTLException) end;
 
 const
-  errornr = 5;
+  errornr = 6;
   E_OUT_OF_RANGE = $1;
   E_INVALID_ARG = $2;
   E_FILE_NOT_FOUND = $3;
   E_OUT_OF_MEMORY = $4;
   E_OUT_OF_BOUND = $5;
+  E_ALLOCATE = $6;
 
-  exception_msg: array [1 .. errornr] of string = ('Out of range.',
-    'Invalid argument: %s.',
-    'File ''%s'' not found.',
-    'Out of memory.',
-    'Out of bound.');
+  exception_msg: array [1 .. errornr] of string = ('Out of range',
+    'Invalid argument: %s',
+    'File ''%s'' not found',
+    'Out of memory',
+    'Out of bound',
+    'Failed allocate memory');
 
-procedure raise_exception(errno: integer); overload;
-procedure raise_exception(errno: integer; args: array of const); overload;
+var
+  exceptions: array [1..errornr] of EDSTLException;
+
+procedure dstl_raise_exception(errno: integer); overload;
+procedure dstl_raise_exception(errno: integer; args: array of const); overload;
 
 implementation
 
-procedure raise_exception(errno: integer);
+procedure dstl_raise_exception(errno: integer);
 begin
-  raise EDSTLException.Create(exception_msg[errno]);
+  raise Exception(exceptions[errno]).Create(exception_msg[errno]);
 end;
 
-procedure raise_exception(errno: integer; args: array of const);
+procedure dstl_raise_exception(errno: integer; args: array of const);
 var
   i: integer;
   str: string;
@@ -86,7 +95,16 @@ begin
         end;
     end;
   end;
-  raise EDSTLException.Create(str);
+  raise Exception(exceptions[errno]).Create(str);
 end;
+
+initialization
+  exceptions[1] := EDSTLOutOfRangeException.Create('');
+  exceptions[2] := EDSTLInvalidArgException.Create('');
+  exceptions[3] := EDSTLFileNotFoundException.Create('');
+  exceptions[4] := EDSTLOutOfMemoryException.Create('');
+  exceptions[5] := EDSTLOutOfBoundException.Create('');
+  exceptions[6] := EDSTLAllocateException.Create('');
+
 
 end.

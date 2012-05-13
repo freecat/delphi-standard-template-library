@@ -56,6 +56,7 @@ contains
   DSTL.STL.Maps in 'src\STL\DSTL.STL.Maps.pas',
   DSTL.STL.Sets in 'src\STL\DSTL.STL.Sets.pas',
   DSTL.Utils.StopWatch in 'src\Utils\DSTL.Utils.StopWatch.pas',
-  DSTL.STL.Alloc in 'src\STL\DSTL.STL.Alloc.pas';
+  DSTL.STL.Alloc in 'src\STL\DSTL.STL.Alloc.pas',
+  DSTL.STL.DequeMap in 'src\STL\DSTL.STL.DequeMap.pas';
 
 end.

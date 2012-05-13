@@ -1,9 +1,9 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
-			<ProjectGuid>{F7542661-E39C-495B-B42B-F3C27084D8E8}</ProjectGuid>
+			<ProjectGuid>{2E37C0C2-0B0D-4826-B58B-709AC8E31536}</ProjectGuid>
 			<ProjectVersion>13.4</ProjectVersion>
 			<FrameworkType>None</FrameworkType>
-			<MainSource>Deque.dpr</MainSource>
+			<MainSource>adjacent_find_test.dpr</MainSource>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -67,7 +67,7 @@
 			<DCC_RemoteDebug>true</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-			<Debugger_DebugSourcePath>D:\My Documents\src\DSTL\src\STL\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+			<Debugger_DebugSourcePath>D:\My Documents\src\DSTL\src\STL\;D:\My Documents\src\DSTL\src\Algorithm\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
 			<DCC_RemoteDebug>false</DCC_RemoteDebug>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -125,7 +125,7 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Source>
-						<Source Name="MainSource">Deque.dpr</Source>
+						<Source Name="MainSource">adjacent_find_test.dpr</Source>
 					</Source>
 				</Delphi.Personality>
 				<Deployment/>

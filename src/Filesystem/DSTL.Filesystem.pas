@@ -185,7 +185,7 @@ begin
   driveName := UpperCase(driveName);
   if not((length(driveName) in [1 .. 3]) or charInSet(driveName[1],
     ['A' .. 'Z'])) then
-    raise_exception(E_INVALID_ARG, [driveName]);
+    dstl_raise_exception(E_INVALID_ARG, [driveName]);
   case length(driveName) of
     1:
       begin
@@ -194,15 +194,15 @@ begin
     2:
       begin
         if driveName[2] <> driveDelim then
-          raise_exception(E_INVALID_ARG, [driveName]);
+          dstl_raise_exception(E_INVALID_ARG, [driveName]);
         fRootDir := driveName + driveDelim;
       end;
     3:
       begin
         if driveName[2] <> driveDelim then
-          raise_exception(E_INVALID_ARG, [driveName]);
+          dstl_raise_exception(E_INVALID_ARG, [driveName]);
         if driveName[3] <> pathDelim then
-          raise_exception(E_INVALID_ARG, [driveName]);
+          dstl_raise_exception(E_INVALID_ARG, [driveName]);
         fRootDir := driveName;
       end;
   end;

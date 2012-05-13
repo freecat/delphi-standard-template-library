@@ -6,6 +6,7 @@ program Deque;
 
 uses
   System.SysUtils,
+  DSTL.Algorithm,
   DSTL.STL.Deque,
   DSTL.STL.Iterator;
 
@@ -35,8 +36,8 @@ begin
   dec(it2);
   second.assign(it1, it2);
 
-  writeln('Size of first: ', first.size);
-  writeln('Size of second: ', second.size);
+  writeln('Size of first: ', first.size);    (* Size of first: 7 *)
+  writeln('Size of second: ', second.size);  (* Size of second: 5 *)
   writeln;
 end;
 
@@ -91,8 +92,8 @@ end;
 
 begin
   assign_test;
-  insert_test;
+  //insert_test;
   erase_test;
-  swap_test;
+  //swap_test;
   readln;
 end.

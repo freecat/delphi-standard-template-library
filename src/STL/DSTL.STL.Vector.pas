@@ -256,13 +256,13 @@ end;
 
 function TVector<T>.get_item(idx: integer): T;
 begin
-  if idx > len then raise_exception(E_OUT_OF_RANGE);
+  if idx > len then dstl_raise_exception(E_OUT_OF_RANGE);
   Result := fItems[idx];
 end;
 
 procedure TVector<T>.set_item(idx: integer; const value: T);
 begin
-  if idx > len then raise_exception(E_OUT_OF_RANGE);
+  if idx > len then dstl_raise_exception(E_OUT_OF_RANGE);
   fItems[idx] := value;
 end;
 
@@ -401,7 +401,7 @@ end;
 
 function TVector<T>.at(const idx: Integer): T;
 begin
-  if idx > size then raise_exception(E_OUT_OF_BOUND);
+  if idx > size then dstl_raise_exception(E_OUT_OF_BOUND);
   result := fItems[idx];
 end;
 
@@ -422,7 +422,7 @@ begin
     (* not enough memory *)
     if not tmp then
       tmp := reallocate((cap + 1) * sizeof(T));
-    if not tmp then raise_exception(E_OUT_OF_MEMORY);
+    if not tmp then dstl_raise_exception(E_OUT_OF_MEMORY);
   end;
   fItems[len] := obj;
   inc(len);
@@ -441,7 +441,7 @@ begin
     (* not enough memory *)
     if not tmp then
       tmp := reallocate((cap + 1) * sizeof(T));
-    if not tmp then raise_exception(E_OUT_OF_MEMORY);
+    if not tmp then dstl_raise_exception(E_OUT_OF_MEMORY);
   end;
 
   idx := Iterator.position;
@@ -460,7 +460,7 @@ var
   i: Integer;
 begin
   if len + n > cap then
-    if not reallocate(len + n) then raise_exception(E_OUT_OF_MEMORY);
+    if not reallocate(len + n) then dstl_raise_exception(E_OUT_OF_MEMORY);
 
   idx := Iterator.position;
   for i := size - 1 downto idx do
@@ -485,7 +485,7 @@ begin
   end;
 
   if len + dist > cap then
-    if not reallocate(len + dist) then raise_exception(E_OUT_OF_MEMORY);
+    if not reallocate(len + dist) then dstl_raise_exception(E_OUT_OF_MEMORY);
 
   idx := Iterator.position;
   for i := size - 1 downto idx do
@@ -546,9 +546,9 @@ begin
   if (Self.len > vec.len) then vec.resize(Self.len)
   else  if (Self.len < vec.len) then Self.resize(vec.len);
   if (Self.len > Self.cap) then
-    if not Self.reallocate(Self.len) then raise_exception(E_OUT_of_MEMORY);
+    if not Self.reallocate(Self.len) then dstl_raise_exception(E_OUT_of_MEMORY);
   if (vec.len > vec.cap) then
-    if not vec.reallocate(vec.len) then raise_exception(E_OUT_OF_MEMORY);
+    if not vec.reallocate(vec.len) then dstl_raise_exception(E_OUT_OF_MEMORY);
 
   for i := 0 to cnt - 1 do
   begin
