@@ -81,8 +81,8 @@ var
   first, second: TVector<integer>;
 begin
   writeln('swap test');
-  first := TVector<integer>.Create(3, 100);
-  second := TVector<integer>.Create(5, 200);
+  first := TVector<integer>.Create(5, 100);
+  second := TVector<integer>.Create(3, 200);
   first.swap(second);
   write('first contains: '); printvec(first);
   write('second contains: '); printvec(second);

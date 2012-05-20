@@ -54,7 +54,7 @@ const
     'File ''%s'' not found',
     'Out of memory',
     'Out of bound',
-    'Failed allocate memory');
+    'Failed allocating memory');
 
 var
   exceptions: array [1..errornr] of EDSTLException;

@@ -15,6 +15,11 @@ var
   it: TIterator<integer>;
   i: integer;
 
+function myfunc(p1, p2: integer): boolean;
+begin
+  Result := p1 = p2;
+end;
+
 begin
   vec := TVector<integer>.Create;
   vec.push_back(10);
@@ -30,7 +35,7 @@ begin
   writeln('the first consecutive repeated elements are: ', integer(it));
 
   inc(it);
-  it := TIterAlgorithms<integer>.adjacent_find(it, vec.finish);
+  it := TIterAlgorithms<integer>.adjacent_find(it, vec.finish, myfunc);
   writeln('the second consecutive repeated elements are: ', integer(it));
 
   readln;

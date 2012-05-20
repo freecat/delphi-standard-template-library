@@ -52,6 +52,8 @@ type
     class function copy_backward(first, last, res: TIterator<T>): TIterator<T>;
     class function count(first, last: TIterator<T>; value: T): integer;
     class function count_if(first, last: TIterator<T>; pred: TPredicate<T>): integer;
+    class procedure fill(first, last: TIterator<T>; value: T);
+    class function fill_n(first: TIterator<T>; n: integer; value: T): TIterator<T>;
     class function find(first, last: TIterator<T>; value: T): TIterator<T>;
     class function find_if(first, last: TIterator<T>; pred: TPredicate<T>): TIterator<T>;
     class function find_end(first1, last1, first2, last2: TIterator<T>): TIterator<T>;  overload;
@@ -216,6 +218,26 @@ begin
     if pred(first.handle.iget(first)) then inc(Result);
     first.handle.iadvance(first);
   end;
+end;
+
+class procedure TIterAlgorithms<T>.fill(first, last: TIterator<T>; value: T);
+begin
+  while not first.handle.iequals(first, last) do
+  begin
+    first.handle.iput(first, value);
+    first.handle.iadvance(first);
+  end;
+end;
+
+class function TIterAlgorithms<T>.fill_n(first: TIterator<T>; n: integer; value: T): TIterator<T>;
+begin
+  while n > 0 do
+  begin
+    first.handle.iput(first, value);
+    first.handle.iadvance(first);
+    dec(n);
+  end;
+  Result := first;
 end;
 
 class function TIterAlgorithms<T>.find(first, last: TIterator<T>; value: T): TIterator<T>;

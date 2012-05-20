@@ -45,9 +45,21 @@ type
   TBinaryFunction<Arg1, Arg2, Res> = function (p1: Arg1; p2: Arg2): Res;
   TCompare<T> = function (left, right: T): integer;
 
+  (* make it easier to swap *)
+  _TSwap<T> = class
+    class procedure swap(var a, b: T);
+  end;
+
 function compare(obj1, obj2: TBaseObject): integer;
 
 implementation
+
+class procedure _TSwap<T>.swap(var a, b: T);
+var
+  tmp: T;
+begin
+  tmp := a; a := b; b := tmp;
+end;
 
 function compare(obj1, obj2: TBaseObject): integer;
 begin

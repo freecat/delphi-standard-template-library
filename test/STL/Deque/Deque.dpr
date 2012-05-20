@@ -52,7 +52,7 @@ begin
   it := mydeque.insert(it, 200);
   mydeque.insert(it, 2, 300);
   it := mydeque.start;
-  inc(it); inc(it);
+  inc(it, 2);
   anotherdeq := TDeque<integer>.Create(2, 400);
   mydeque.insert(it, anotherdeq.start, anotherdeq.finish);
   printdeq(mydeque);    (* 300 300 400 400 200 100 100 100 *)
@@ -92,8 +92,8 @@ end;
 
 begin
   assign_test;
-  //insert_test;
+  insert_test;
   erase_test;
-  //swap_test;
+  swap_test;
   readln;
 end.

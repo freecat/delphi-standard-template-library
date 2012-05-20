@@ -276,8 +276,8 @@ begin
   olditems := fItems;
   fItems := allocator.allocate(sz);
   if fItems = nil then exit(false);
-  CopyMemory(fItems, olditems, oldcap);
-  FreeMem(olditems, oldcap);
+  CopyMemory(fItems, olditems, oldcap * SizeOf(T));
+  allocator.deallocate(olditems, oldcap * SizeOf(T));
   cap := sz;
 end;
 
@@ -526,46 +526,14 @@ end;
 
 procedure TVector<T>.swap(var vec: TVector<T>);
 var
-  cnt, slen, svec, scap: integer;
-  i: integer;
-  tmp: T;
+  tmp: pointer;
 begin
-  if Self.len > vec.len then
-  begin
-    cnt := Self.len;
-    slen := vec.len;
-    scap := vec.cap;
-    svec := 0;
-  end
-  else begin
-    cnt := vec.len;
-    slen := Self.len;
-    scap := Self.cap;
-    svec := 1;
-  end;
-  if (Self.len > vec.len) then vec.resize(Self.len)
-  else  if (Self.len < vec.len) then Self.resize(vec.len);
-  if (Self.len > Self.cap) then
-    if not Self.reallocate(Self.len) then dstl_raise_exception(E_OUT_of_MEMORY);
-  if (vec.len > vec.cap) then
-    if not vec.reallocate(vec.len) then dstl_raise_exception(E_OUT_OF_MEMORY);
-
-  for i := 0 to cnt - 1 do
-  begin
-    tmp := Self.fItems[i];
-    Self.fItems[i] := vec.fItems[i];
-    vec.fItems[i] := tmp;
-  end;
-
-  if svec = 0 then
-  begin
-    Self.resize(slen);
-    Self.reallocate(scap);
-  end
-  else begin
-    vec.resize(slen);
-    vec.reallocate(scap);
-  end;
+  tmp := Self.fItems;
+  Self.fItems := vec.fItems;
+  vec.fItems := tmp;
+  _TSwap<integer>.swap(Self.len, vec.len);
+  _TSwap<integer>.swap(Self.cap, Self.cap);
+  _TSwap<IAllocator<T>>.swap(Self.allocator, Self.allocator);
 end;
 
 function TVector<T>.get_allocator: IAllocator<T>;
