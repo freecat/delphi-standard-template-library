@@ -60,7 +60,9 @@ type
     procedure iadvance(var Iterator: TIterator<T>); override;
     procedure iretreat(var Iterator: TIterator<T>); override;
     function iget(const Iterator: TIterator<T>): T; override;
+    procedure iput(const Iterator: TIterator<T>; const obj: T); override;
     function iequals(const iter1, iter2: TIterator<T>): boolean; override;
+    function idistance(const iter1, iter2: TIterator<T>): integer; override;
 
     function get_item(idx: integer): T;
     procedure set_item(idx: integer; const value: T);
@@ -249,9 +251,19 @@ begin
   result := fItems[Iterator.position];
 end;
 
+procedure TVector<T>.iput(const Iterator: TIterator<T>; const obj: T);
+begin
+  fItems[Iterator.position] := obj;
+end;
+
 function TVector<T>.iequals(const iter1, iter2: TIterator<T>): boolean;
 begin
   result := iter1.position = iter2.position;
+end;
+
+function TVector<T>.idistance(const iter1, iter2: TIterator<T>): integer;
+begin
+  Result := iter2.position - iter1.position;
 end;
 
 function TVector<T>.get_item(idx: integer): T;

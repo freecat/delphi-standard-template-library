@@ -30,7 +30,7 @@ unit DSTL.STL.Deque;
 interface
 
 uses
-  Windows, Generics.Defaults,
+  Windows, Generics.Defaults, SysUtils,
   DSTL.Types, DSTL.STL.Iterator, DSTL.STL.Vector, DSTL.Exception, DSTL.STL.Alloc,
   DSTL.STL.DequeMap, DSTL.Algorithm;
 
@@ -38,6 +38,9 @@ const
   defaultBufSize = 32;
 
 type
+  EDSTLBufferSizeTooLargeException = class(Exception)
+  end;
+
   TDeque<T> = class(TSequence<T>)
   protected
     allocator: IAllocator<T>;
@@ -265,6 +268,9 @@ end;
 
 procedure TDeque<T>.set_buf_size(const value: TSizeType);
 begin
+  if value > MAX_BUFFER_SIZE then
+    raise EDSTLBufferSizeTooLargeException.Create('Buffer size should be less than ' +
+                                                        inttostr(MAX_BUFFER_SIZE));
   Self.buf_size := value;
 end;
 

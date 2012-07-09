@@ -137,6 +137,7 @@
 			<DCCReference Include="src\Utils\DSTL.Utils.StopWatch.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Alloc.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.DequeMap.pas"/>
+			<DCCReference Include="src\STL\DSTL.STL.Heap.pas"/>
 			<None Include="src\DSTL.inc"/>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>

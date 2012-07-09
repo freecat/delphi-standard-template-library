@@ -29,7 +29,8 @@ unit DSTL.STL.Iterator;
 
 interface
 
-uses SysUtils, DSTL.Config, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.TreeNode,
+uses
+  SysUtils, DSTL.Config, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.TreeNode,
   DSTL.Utils.Pair, DSTL.STL.DequeMap;
 
 const
@@ -152,14 +153,17 @@ type
 
 {$WARNINGS OFF}     // disable warning for TIterOperations.equals
   TIterOperations<T> = class
-    procedure advance(var Iterator: TIterator<T>);
-    procedure retreat(var Iterator: TIterator<T>);
-    function get(const Iterator: TIterator<T>): T;
-    procedure put(const Iterator: TIterator<T>; const obj: T);
-    function remove(const Iterator: TIterator<T>): TIterator<T>;
-    function at_end(const Iterator: TIterator<T>): boolean;
-    function equals(const iter1, iter2: TIterator<T>): Boolean;
-    function distance(const iter1, iter2: TIterator<T>): integer;
+    class procedure advance(var Iterator: TIterator<T>);
+    class function advance_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+    class procedure retreat(var Iterator: TIterator<T>);
+    class function retreat_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+    class function get(const Iterator: TIterator<T>): T;
+    class procedure put(const Iterator: TIterator<T>; const obj: T);
+    class function remove(const Iterator: TIterator<T>): TIterator<T>;
+    class function at_end(const Iterator: TIterator<T>): boolean;
+    class function equals(const iter1, iter2: TIterator<T>): Boolean;
+    class function distance(const iter1, iter2: TIterator<T>): integer;
+    class function add(iter: TIterator<T>; i: integer): TIterator<T>;
   end;
 
   TIterOperations<T1, T2> = class
@@ -349,44 +353,74 @@ end;
 
 {$REGION 'TIterOperations'}
 
-procedure TIterOperations<T>.advance(var Iterator: TIterator<T>);
+class procedure TIterOperations<T>.advance(var Iterator: TIterator<T>);
 begin
   Iterator.handle.iadvance(Iterator);
 end;
 
-procedure TIterOperations<T>.retreat(var Iterator: TIterator<T>);
+class function TIterOperations<T>.advance_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+begin
+  while n > 0 do
+  begin
+    advance(Iterator);
+    dec(n);
+  end;
+  Result := Iterator;
+end;
+
+class procedure TIterOperations<T>.retreat(var Iterator: TIterator<T>);
 begin
   Iterator.handle.iadvance(Iterator);
 end;
 
-function TIterOperations<T>.get(const Iterator: TIterator<T>): T;
+class function TIterOperations<T>.retreat_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+begin
+  while n > 0 do
+  begin
+    retreat(Iterator);
+    dec(n);
+  end;
+  Result := Iterator;
+end;
+
+class function TIterOperations<T>.get(const Iterator: TIterator<T>): T;
 begin
   Result := Iterator.handle.iget(Iterator);
 end;
 
-procedure TIterOperations<T>.put(const Iterator: TIterator<T>; const obj: T);
+class procedure TIterOperations<T>.put(const Iterator: TIterator<T>; const obj: T);
 begin
   Iterator.handle.iput(Iterator, obj);
 end;
 
-function TIterOperations<T>.remove(const Iterator: TIterator<T>): TIterator<T>;
+class function TIterOperations<T>.remove(const Iterator: TIterator<T>): TIterator<T>;
 begin
   Result := Iterator.handle.iremove(Iterator);
 end;
 
-function TIterOperations<T>.at_end(const Iterator: TIterator<T>): boolean;
+class function TIterOperations<T>.at_end(const Iterator: TIterator<T>): boolean;
 begin
   Result := Iterator.handle.iat_end(Iterator);
 end;
 
-function TIterOperations<T>.equals(const iter1, iter2: TIterator<T>): Boolean;
+class function TIterOperations<T>.equals(const iter1, iter2: TIterator<T>): Boolean;
 begin
   Result := iter1.handle.iequals(iter1, iter2);
 end;
 
-function TIterOperations<T>.distance(const iter1, iter2: TIterator<T>): integer;
+class function TIterOperations<T>.distance(const iter1, iter2: TIterator<T>): integer;
 begin
   Result := iter1.handle.idistance(iter1, iter2);
+end;
+
+class function TIterOperations<T>.add(iter: TIterator<T>; i: integer): TIterator<T>;
+begin
+  while i > 0 do
+  begin
+    iter.handle.iadvance(iter);
+    dec(i);
+  end;
+  Result := iter;
 end;
 
 procedure TIterOperations<T1, T2>.advance(var Iterator: TIterator<T1, T2>);

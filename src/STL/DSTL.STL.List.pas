@@ -32,7 +32,7 @@ interface
 uses
 
   SysUtils, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.Iterator, DSTL.STL.Vector,
-  Generics.Defaults;
+  Generics.Defaults, DSTL.Exception;
 
 type
 
@@ -50,6 +50,8 @@ type
 
     procedure swap_node(var it1, it2: TIterator<T>);
     procedure _sort(comparator: IComparer<T>; l, r: integer);
+    function get_item(idx: integer): T;
+    procedure set_item(idx: integer; const value: T);
   public
     constructor Create; overload;
     constructor Create(n: integer; value: T); overload;
@@ -94,6 +96,8 @@ type
     procedure splice(var position: TIterator<T>;var x: TList<T>;var first, last: TIterator<T>); overload;
     procedure unique;  overload;
     procedure unique(bin_pred: TBinaryPredicate<T, T>); overload;
+
+    property items[idx: integer]: T read get_item write set_item; default;
   end;
 
 {$ENDREGION}
@@ -192,6 +196,33 @@ begin
     inc(dist);
   end;
   Result := dist;
+end;
+
+function TList<T>.get_item(idx: integer): T;
+var
+  it: TIterator<T>;
+begin
+  if (idx >= size) or (idx < 0) then dstl_raise_exception(E_OUT_OF_BOUND);
+  it := start;
+  while idx > 0 do
+  begin
+    iadvance(it);
+    dec(idx);
+  end;
+  Result := it.node.obj;
+end;
+
+procedure TList<T>.set_item(idx: integer; const value: T);
+var
+  it: TIterator<T>;
+begin
+  it := start;
+  while idx > 0 do
+  begin
+    iadvance(it);
+    dec(idx);
+  end;
+  it.node.obj := value;
 end;
 
 procedure TList<T>.assign(first, last: TIterator<T>);
