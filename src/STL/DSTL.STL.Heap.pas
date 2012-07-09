@@ -163,7 +163,7 @@ end;
 
 class procedure THeapAlgorithms<T>._pop_heap(first, last: TIterator<T>; var result: TIterator<T>; value: T);
 begin
-  result := first;
+  TIterOperations<T>.put(result, TIterOperations<T>.get(first));
   adjust_heap(first, 0, TIterOperations<T>.distance(first, last), value);
 end;
 
@@ -216,7 +216,7 @@ end;
 
 class procedure THeapAlgorithms<T>._pop_heap(first, last: TIterator<T>; var result: TIterator<T>; value: T; comp: TCompare<T>);
 begin
-  result := first;
+  TIterOperations<T>.put(result, TIterOperations<T>.get(first));
   adjust_heap(first, 0, TIterOperations<T>.distance(first, last), value, comp);
 end;
 
