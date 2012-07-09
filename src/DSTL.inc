@@ -5,4 +5,8 @@
 {$ERROR "Delphi Standard Template library only supports Delphi 2010 or later."}
 {$IFEND}
 
+{$IF DEFINED(VER210)}
+{$DEFINE DELPHI_XE}
+{$IFEND}
+
 {$ENDIF}

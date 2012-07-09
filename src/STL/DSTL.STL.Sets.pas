@@ -5,10 +5,11 @@ uses
   DSTL.STL.Iterator, DSTL.STL.RBTree, DSTL.Utils.Pair, Generics.Defaults;
 
 type
-  TSet<T> = class(TContainer<T, T>)
+  TInternalSet<T> = class(TContainer<T, T>)
   protected
     tree: TRedBlackTree<T, T>;
 
+    procedure create_set(always_insert: boolean; compare: IComparer<T>);
     procedure iadvance(var Iterator: TIterator<T, T>);  override;
     function iat_end(const Iterator: TIterator<T, T>): boolean; override;
     function iequals(const iter1, iter2: TIterator<T, T>): Boolean;  override;
@@ -16,7 +17,6 @@ type
     procedure iretreat(var Iterator: TIterator<T, T>);  override;
     procedure clear;
   public
-    constructor Create;
     destructor Destroy;   override;
     function start: TIterator<T, T>;
     function finish: TIterator<T, T>;
@@ -25,84 +25,102 @@ type
     function includes(const obj: T): boolean;
   end;
 
+  TSet<T> = class(TInternalSet<T>)
+  public
+    constructor Create;
+  end;
+
+  TMultiSet<T> = class(TInternalSet<T>)
+  public
+    constructor Create;
+  end;
+
 implementation
 
-constructor TSet<T>.Create;
+procedure TInternalSet<T>.create_set(always_insert: boolean; compare: IComparer<T>);
 begin
-  tree := TRedBlackTree<T, T>.Create(Self, true, TComparer<T>.Default);
+  tree := TRedBlackTree<T, T>.Create(Self, always_insert, compare);
 end;
 
-destructor TSet<T>.Destroy;
+destructor TInternalSet<T>.Destroy;
 begin
 	tree.free;
 	inherited;
 end;
 
-procedure TSet<T>.iadvance(var Iterator: TIterator<T, T>);
+procedure TInternalSet<T>.iadvance(var Iterator: TIterator<T, T>);
 begin
-  with Iterator do
-  begin
-    tree.RBincrement(node);
-  end;
+  tree.RBincrement(Iterator.node);
 end;
 
-function TSet<T>.iat_end(const Iterator: TIterator<T, T>): boolean;
+function TInternalSet<T>.iat_end(const Iterator: TIterator<T, T>): boolean;
 begin
   Result := Iterator.node = tree.EndNode;
 end;
 
-function TSet<T>.iequals(const iter1, iter2: TIterator<T, T>): Boolean;
+function TInternalSet<T>.iequals(const iter1, iter2: TIterator<T, T>): Boolean;
 begin
   result := iter1.node = iter2.node;
 end;
 
-function TSet<T>.iremove(const Iterator: TIterator<T, T>): TIterator<T, T>;
+function TInternalSet<T>.iremove(const Iterator: TIterator<T, T>): TIterator<T, T>;
 begin
   result := Iterator;
   iadvance(result);
   tree.eraseAt(Iterator);
 end;
 
-procedure TSet<T>.iretreat(var Iterator: TIterator<T, T>);
+procedure TInternalSet<T>.iretreat(var Iterator: TIterator<T, T>);
 begin
-  with Iterator do
-  begin
-    tree.RBdecrement(Iterator.node);
-  end;
+  tree.RBdecrement(Iterator.node);
 end;
 
-procedure TSet<T>.clear;
+procedure TInternalSet<T>.clear;
 begin
   tree.erase(true);
 end;
 
-function TSet<T>.start : TIterator<T, T>;
+function TInternalSet<T>.start : TIterator<T, T>;
 begin
 	result := tree.start;
 end;
 
-function TSet<T>.finish : TIterator<T, T>;
+function TInternalSet<T>.finish : TIterator<T, T>;
 begin
 	result := tree.finish;
 end;
 
-procedure TSet<T>.add(const obj: T);
+procedure TInternalSet<T>.add(const obj: T);
 begin
+{$IF DEFINED(VER210)}
+  tree.insert(TPair<T, T>.Create(obj, obj));
+{$ELSE}
   tree.insert(TPair<T, T>.Create(obj, T(nil)));
+{$IFEND}
 end;
 
-procedure TSet<T>.remove(const obj : T);
+procedure TInternalSet<T>.remove(const obj : T);
 begin
 	tree.eraseKey(obj);
 end;
 
-function TSet<T>.includes(const obj: T): boolean;
+function TInternalSet<T>.includes(const obj: T): boolean;
 var
   iter: TIterator<T, T>;
   io: TIterOperations<T, T>;
 begin
   iter := tree.find(obj);
 	result := not io.equals(iter, finish);
+end;
+
+constructor TSet<T>.Create;
+begin
+  create_set(false, TComparer<T>.Default);
+end;
+
+constructor TMultiSet<T>.Create;
+begin
+  create_set(true, TComparer<T>.Default);
 end;
 
 end.

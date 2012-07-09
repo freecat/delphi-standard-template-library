@@ -91,20 +91,14 @@ end;
 
 function TRedBlackTree<K, V>.start: TIterator<K, V>;
 begin
-  with result do
-  begin
-    handle := Self.FContainer;
-    node := FHeader.left;
-  end;
+  Result.handle := Self.FContainer;
+  Result.node := FHeader.left;
 end;
 
 function TRedBlackTree<K, V>.finish: TIterator<K, V>;
 begin
-  with result do
-  begin
-    handle := Self.FContainer;
-    node := FHeader;
-  end;
+  Result.handle := Self.FContainer;
+  Result.node := FHeader;
 end;
 
 function TRedBlackTree<K, V>.RBCopyTree(oldNode, parent: TTreeNode<K, V>)
@@ -439,11 +433,8 @@ end;
 
 function TRedBlackTree<K, V>.equal_range(const obj: K): TRange<K, V>;
 begin
-  with result do
-  begin
-    start := lower_bound(obj);
-    finish := upper_bound(obj);
-  end;
+  Result.start := lower_bound(obj);
+  Result.finish := upper_bound(obj);
 end;
 
 procedure TRedBlackTree<K, V>.RBInitializeRoot;
