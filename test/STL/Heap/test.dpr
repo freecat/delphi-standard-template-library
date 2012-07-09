@@ -31,15 +31,14 @@ begin
   v.push_back(5);
   v.push_back(15);
 
-  THeapAlgorithms<integer>.make_heap(v.start,v.finish);    print_vec(v);
+  THeapAlgorithms<integer>.make_heap(v.start,v.finish);
   writeln('initial max heap   : ', v.front);
 
   THeapAlgorithms<integer>.pop_heap (v.start,v.finish);
-  v.pop_back;                          print_vec(v);
+  v.pop_back;
   writeln('max heap after pop : ', v.front);
 
   v.push_back(99); THeapAlgorithms<integer>.push_heap (v.start,v.finish);
-  print_vec(v);
   writeln('max heap after push: ', v.front);
 
   THeapAlgorithms<integer>.sort_heap(v.start, v.finish);
