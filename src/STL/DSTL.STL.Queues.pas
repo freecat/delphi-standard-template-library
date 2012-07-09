@@ -30,7 +30,7 @@ unit DSTL.STL.Queues;
 interface
 
 uses
-  DSTL.STL.Vector, DSTL.STL.Deque;
+  DSTL.STL.Vector, DSTL.STL.Deque, DSTL.STL.Heap;
 
 type
   TQueue<T> = class
@@ -57,6 +57,7 @@ type
     function size: integer;
     function front: T;
     function back: T;
+    function top: T;
     procedure push(x: T);
     procedure pop;
   end;
@@ -133,14 +134,21 @@ begin
   Result := queue.back;
 end;
 
+function TPriorityQueue<T>.top: T;
+begin
+  Result := queue.back;
+end;
+
 procedure TPriorityQueue<T>.push(x: T);
 begin
   queue.push_back(x);
+  THeapAlgorithms<T>.push_heap(queue.start, queue.finish);
 end;
 
 procedure TPriorityQueue<T>.pop;
 begin
-  queue.pop_front;
+  THeapAlgorithms<T>.pop_heap(queue.start, queue.finish);
+  queue.pop_back;
 end;
 
 end.
