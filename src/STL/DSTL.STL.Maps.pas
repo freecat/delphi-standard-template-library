@@ -113,10 +113,7 @@ end;
 
 procedure TInternalMap<K, V>.iadvance(var Iterator: TIterator<K, V>);
 begin
-  with Iterator do
-  begin
-    tree.RBincrement(node);
-  end;
+  tree.RBincrement(Iterator.node);
 end;
 
 function TInternalMap<K, V>.iget(const Iterator: TIterator<K, V>): TPair<K, V>;
@@ -148,10 +145,7 @@ end;
 
 procedure TInternalMap<K, V>.iretreat(var Iterator: TIterator<K, V>);
 begin
-  with Iterator do
-  begin
-    tree.RBdecrement(Iterator.node);
-  end;
+  tree.RBdecrement(Iterator.node);
 end;
 
 function TInternalMap<K, V>.iget_at(const Iterator: TIterator<K, V>; offset: Integer)

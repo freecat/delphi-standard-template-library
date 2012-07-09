@@ -154,9 +154,9 @@ type
 {$WARNINGS OFF}     // disable warning for TIterOperations.equals
   TIterOperations<T> = class
     class procedure advance(var Iterator: TIterator<T>);
-    class function advance_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+    class procedure advance_by(var Iterator: TIterator<T>; n: integer);
     class procedure retreat(var Iterator: TIterator<T>);
-    class function retreat_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+    class procedure retreat_by(var Iterator: TIterator<T>; n: integer);
     class function get(const Iterator: TIterator<T>): T;
     class procedure put(const Iterator: TIterator<T>; const obj: T);
     class function remove(const Iterator: TIterator<T>): TIterator<T>;
@@ -358,29 +358,27 @@ begin
   Iterator.handle.iadvance(Iterator);
 end;
 
-class function TIterOperations<T>.advance_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+class procedure TIterOperations<T>.advance_by(var Iterator: TIterator<T>; n: integer);
 begin
   while n > 0 do
   begin
     advance(Iterator);
     dec(n);
   end;
-  Result := Iterator;
 end;
 
 class procedure TIterOperations<T>.retreat(var Iterator: TIterator<T>);
 begin
-  Iterator.handle.iadvance(Iterator);
+  Iterator.handle.iretreat(Iterator);
 end;
 
-class function TIterOperations<T>.retreat_by(var Iterator: TIterator<T>; n: integer): TIterator<T>;
+class procedure TIterOperations<T>.retreat_by(var Iterator: TIterator<T>; n: integer);
 begin
   while n > 0 do
   begin
     retreat(Iterator);
     dec(n);
   end;
-  Result := Iterator;
 end;
 
 class function TIterOperations<T>.get(const Iterator: TIterator<T>): T;
@@ -430,7 +428,7 @@ end;
 
 procedure TIterOperations<T1, T2>.retreat(var Iterator: TIterator<T1, T2>);
 begin
-  Iterator.handle.iadvance(Iterator);
+  Iterator.handle.iretreat(Iterator);
 end;
 
 function TIterOperations<T1, T2>.get(const Iterator: TIterator<T1, T2>)

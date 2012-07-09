@@ -30,7 +30,7 @@ unit DSTL.STL.List;
 interface
 
 uses
-
+  DSTL.Config,
   SysUtils, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.Iterator, DSTL.STL.Vector,
   Generics.Defaults, DSTL.Exception;
 
@@ -733,7 +733,8 @@ begin
   i.node.next := position.node;
   if position.node.prev <> nil then position.node.prev := i.node;
   *)
-  Self.insert(position, i);
+
+  Self.insert(position, iget(i));
   x.erase(i);
 end;
 

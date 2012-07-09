@@ -5,7 +5,8 @@ program test;
 {$R *.res}
 
 uses
-  System.SysUtils,
+  SysUtils,
+  DSTL.STL.Iterator,
   DSTL.STL.Vector,
   DSTL.STL.Heap;
 
@@ -21,6 +22,7 @@ procedure make_heap_test;
 var
   v: TVector<integer>;
   i: integer;
+  io: TIterOperations<integer>;
 begin
   v := TVector<integer>.Create;
   v.push_back(10);
@@ -29,15 +31,15 @@ begin
   v.push_back(5);
   v.push_back(15);
 
-  THeapAlgorithms<integer>.make_heap(v.start,v.finish);
-  print_vec(v);
+  THeapAlgorithms<integer>.make_heap(v.start,v.finish);    print_vec(v);
   writeln('initial max heap   : ', v.front);
 
   THeapAlgorithms<integer>.pop_heap (v.start,v.finish);
-  v.pop_back;
+  v.pop_back;                          print_vec(v);
   writeln('max heap after pop : ', v.front);
 
   v.push_back(99); THeapAlgorithms<integer>.push_heap (v.start,v.finish);
+  print_vec(v);
   writeln('max heap after push: ', v.front);
 
   THeapAlgorithms<integer>.sort_heap(v.start, v.finish);

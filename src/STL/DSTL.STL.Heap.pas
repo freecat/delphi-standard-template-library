@@ -37,7 +37,7 @@ type
   private
     class procedure _push_heap(first: TIterator<T>; holeIndex, topIndex: integer;
                                                           value: T);  overload;
-    class procedure _push_heap_aux(first, last: TIterator<T>; value: T); overload;
+    class procedure _push_heap_aux(first, last: TIterator<T>); overload;
     class procedure _push_heap(first: TIterator<T>; holeIndex, topIndex: integer;
                                                           value: T; comp: TCompare<T>); overload;
     class procedure _push_heap_aux(first, last: TIterator<T>; value: T; comp: TCompare<T>); overload;
@@ -67,6 +67,7 @@ class procedure THeapAlgorithms<T>._push_heap(first: TIterator<T>; holeIndex,
 var
   parent: integer;
   io: TIterOperations<T>;
+  it: TIterator<T>;
 begin
   parent := (holeIndex - 1) div 2;
   while (holeIndex > topIndex) and (TComparer<T>.Default.Compare(
@@ -79,21 +80,19 @@ begin
   io.put(io.add(first, holeIndex), value);
 end;
 
-class procedure THeapAlgorithms<T>._push_heap_aux(first, last: TIterator<T>; value: T);
+class procedure THeapAlgorithms<T>._push_heap_aux(first, last: TIterator<T>);
 var
   io: TIterOperations<T>;
   it: TIterator<T>;
 begin
   it := last;
   io.retreat(it);
-  _push_heap(first, io.distance(first, last) - 1, 0, it);
+  _push_heap(first, io.distance(first, last) - 1, 0, io.get(it));
 end;
 
 class procedure THeapAlgorithms<T>.push_heap(first, last: TIterator<T>);
-var
-  io: TIterOperations<T>;
 begin
-  _push_heap_aux(first, last, io.get(first));
+  _push_heap_aux(first, last);
 end;
 
 
@@ -136,20 +135,27 @@ class procedure THeapAlgorithms<T>.adjust_heap(first: TIterator<T>; holeIndex, l
 var
   topIndex, secondChild: integer;
   io: TIterOperations<T>;
+  it1, it2: TIterator<T>;
 begin
   topIndex := holeIndex;
   secondChild := 2 * holeIndex + 2;
   while (secondChild < len) do
   begin
-    if TComparer<T>.Default.Compare(io.get(io.advance_by(first, secondChild)), io.get(io.advance_by(first, secondChild - 1))) < 0 then
+    it1 := first; io.advance_by(it1, secondChild);
+    it2 := first; io.advance_by(it2, secondChild - 1);
+    if TComparer<T>.Default.Compare(io.get(it1), io.get(it2)) < 0 then
       dec(secondChild);
-    io.put(io.advance_by(first, holeIndex), io.get(io.advance_by(first, secondChild)));
+    it1 := first; io.advance_by(it1, holeIndex);
+    it2 := first; io.advance_by(it2, secondChild);
+    io.put(it1, io.get(it2));
     holeIndex := secondChild;
     secondChild := 2 * (secondChild + 1);
   end;
   if secondChild = len then
   begin
-    io.put(io.advance_by(first, holeIndex), io.advance_by(first, secondChild - 1));
+    it1 := first; io.advance_by(it1, holeIndex);
+    it2 := first; io.advance_by(it2, secondChild - 1);
+    io.put(it1, io.get(it2));
     holeIndex := secondChild - 1;
   end;
   _push_heap(first, holeIndex, topIndex, value);
@@ -164,12 +170,12 @@ end;
 
 class procedure THeapAlgorithms<T>._pop_heap_aux(first, last: TIterator<T>);
 var
-  io: TIterOperations<T>;
   it: TIterator<T>;
 begin
-  it := io.retreat_by(last, 1);
-  _pop_heap(first, io.retreat_by(last, 1), it,
-             io.get(it));
+  it := last;
+  TIterOperations<T>.retreat(it);
+  _pop_heap(first, it, it,
+             TIterOperations<T>.get(it));
 end;
 
 class procedure THeapAlgorithms<T>.pop_heap(first, last: TIterator<T>);
@@ -182,20 +188,27 @@ class procedure THeapAlgorithms<T>.adjust_heap(first: TIterator<T>; holeIndex, l
 var
   topIndex, secondChild: integer;
   io: TIterOperations<T>;
+  it1, it2: TIterator<T>;
 begin
   topIndex := holeIndex;
   secondChild := 2 * holeIndex + 2;
   while (secondChild < len) do
   begin
-    if comp(io.get(io.advance_by(first, secondChild)), io.get(io.advance_by(first, secondChild - 1))) < 0 then
+    it1 := first; io.advance_by(it1, secondChild);
+    it2 := first; io.advance_by(it2, secondChild - 1);
+    if comp(io.get(it1), io.get(it2)) < 0 then
       dec(secondChild);
-    io.put(io.advance_by(first, holeIndex), io.get(io.advance_by(first, secondChild)));
+    it1 := first; io.advance_by(it1, holeIndex);
+    it2 := first; io.advance_by(it2, secondChild);
+    io.put(it1, io.get(it2));
     holeIndex := secondChild;
     secondChild := 2 * (secondChild + 1);
   end;
   if secondChild = len then
   begin
-    io.put(io.advance_by(first, holeIndex), io.advance_by(first, secondChild - 1));
+    it1 := first; io.advance_by(it1, holeIndex);
+    it2 := first; io.advance_by(it2, secondChild - 1);
+    io.put(it1, io.get(it2));
     holeIndex := secondChild - 1;
   end;
   _push_heap(first, holeIndex, topIndex, value);
@@ -212,8 +225,9 @@ var
   io: TIterOperations<T>;
   it: TIterator<T>;
 begin
-  it := io.retreat_by(last, 1);
-  _pop_heap(first, io.retreat_by(last, 1), it,
+  it := last;
+  io.retreat(it);
+  _pop_heap(first, it, it,
              io.get(it), comp);
 end;
 
@@ -226,6 +240,7 @@ class procedure THeapAlgorithms<T>.make_heap(first, last: TIterator<T>);
 var
   io: TIterOperations<T>;
   len, parent: integer;
+  it: TIterator<T>;
 begin
   len := io.distance(first, last);
   if len < 2 then exit;
@@ -233,20 +248,19 @@ begin
 
   while true do
   begin
-    adjust_heap(first, parent, len, io.get(io.advance_by(first, parent)));
+    it := first; io.advance_by(it, parent);
+    adjust_heap(first, parent, len, io.get(it));
     if parent = 0 then exit;
     dec(parent);
   end;
 end;
 
 class procedure THeapAlgorithms<T>.sort_heap(first, last: TIterator<T>);
-var
-  io: TIterOperations<T>;
 begin
-  while (io.distance(first, last) > 1) do
+  while (TIterOperations<T>.distance(first, last) > 1) do
   begin
     pop_heap(first, last);
-    io.retreat(last);
+    TIterOperations<T>.retreat(last);
   end;
 end;
 
