@@ -136,7 +136,7 @@ end;
 
 function TPriorityQueue<T>.top: T;
 begin
-  Result := queue.back;
+  Result := queue.front;
 end;
 
 procedure TPriorityQueue<T>.push(x: T);

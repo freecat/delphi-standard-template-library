@@ -47,6 +47,7 @@ type
 
     buf_size: TSizeType;
     map: TDequeMapNode<T>;
+    fstart, ffinish: TIterator<T>;
 
     procedure iadvance(var Iterator: TIterator<T>); override;
     procedure iadvance_by(var Iterator: TIterator<T>;n: integer);
@@ -73,7 +74,6 @@ type
     procedure fill_insert(position: TIterator<T>; n: integer; const obj: T);
     procedure insert_aux(position: TIterator<T>; n: integer; const obj: T); overload;
   public
-    start, finish: TIterator<T>;
 
     constructor Create;  overload;
     constructor Create(alloc: IAllocator<T>); overload;
@@ -86,6 +86,8 @@ type
     procedure add(const obj: T); override;
     procedure remove(const obj: T); override;
     procedure clear; override;
+    function start: TIterator<T>; override;
+    function finish: TIterator<T>; override;
     function front: T; override;
     function back: T; override;
     function capacity: integer;
@@ -124,8 +126,8 @@ begin
   allocator := TAllocator<T>.Create;
   buf_size := defaultBufSize;
   create_map;
-  start.handle := Self;
-  finish.handle := Self;
+  fstart.handle := Self;
+  ffinish.handle := Self;
 end;
 
 constructor TDeque<T>.Create(alloc: IAllocator<T>);
@@ -133,8 +135,8 @@ begin
   allocator := alloc;
   buf_size := defaultBufSize;
   create_map;
-  start.handle := Self;
-  finish.handle := Self;
+  fstart.handle := Self;
+  ffinish.handle := Self;
 end;
 
 constructor TDeque<T>.Create(n: integer; value: T);
@@ -142,8 +144,8 @@ begin
   allocator := TAllocator<T>.Create;
   buf_size := defaultBufSize;
   assign(n, value);
-  start.handle := Self;
-  finish.handle := Self;
+  fstart.handle := Self;
+  ffinish.handle := Self;
 end;
 
 constructor TDeque<T>.Create(first, last: TIterator<T>);
@@ -151,8 +153,8 @@ begin
   allocator := TAllocator<T>.Create;
   buf_size := defaultBufSize;
   assign(first, last);
-  start.handle := Self;
-  finish.handle := Self;
+  fstart.handle := Self;
+  ffinish.handle := Self;
 end;
 
 constructor TDeque<T>.Create(x: TVector<T>);
@@ -160,8 +162,8 @@ begin
   allocator := TAllocator<T>.Create;
   buf_size := defaultBufSize;
   assign(x.start, x.finish);
-  start.handle := Self;
-  finish.handle := Self;
+  fstart.handle := Self;
+  ffinish.handle := Self;
 end;
 
 destructor TDeque<T>.Destroy;
@@ -239,7 +241,7 @@ var
   it: TIterator<T>;
 begin
   if (idx >= size) or (idx < 0) then dstl_raise_exception(E_OUT_OF_BOUND);
-  it := start;
+  it := fstart;
   while idx > 0 do
   begin
     iadvance(it);
@@ -252,7 +254,7 @@ procedure TDeque<T>.set_item(idx: integer; const value: T);
 var
   it: TIterator<T>;
 begin
-  it := start;
+  it := fstart;
   while idx > 0 do
   begin
     iadvance(it);
@@ -287,10 +289,10 @@ var
 begin
   node := TDequeMapNode<T>.Create;
   node.buf := allocator.allocate(buf_size * sizeOf(T));
-  set_node(start, node);
-  set_node(finish, node);
-  start.cur := start.first;
-  finish.cur := start.first;
+  set_node(fstart, node);
+  set_node(ffinish, node);
+  fstart.cur := fstart.first;
+  ffinish.cur := fstart.first;
 end;
 
 function TDeque<T>.reserve_elements_at_front(n: integer): TIterator<T>;
@@ -298,15 +300,15 @@ var
   tmp: T;
   old_start: TIterator<T>;
 begin
-  old_start := start;
+  old_start := fstart;
   tmp := front;
   while n > 0 do
   begin
     push_front(tmp);
     dec(n);
   end;
-  Result := start;
-  start := old_start;
+  Result := fstart;
+  fstart := old_start;
 end;
 
 function TDeque<T>.reserve_elements_at_back(n: integer): TIterator<T>;
@@ -314,15 +316,15 @@ var
   tmp: T;
   old_finish: TIterator<T>;
 begin
-  old_finish := finish;
+  old_finish := ffinish;
   tmp := back;
   while n > 0 do
   begin
     push_back(tmp);
     dec(n);
   end;
-  Result := finish;
-  finish := old_finish;
+  Result := ffinish;
+  ffinish := old_finish;
 end;
 
 procedure TDeque<T>.assign(first, last: TIterator<T>);
@@ -331,10 +333,10 @@ var
 begin
   (* clean up *)
   if not empty then clear;
-  if start.bnode <> nil then
+  if fstart.bnode <> nil then
   begin
-    allocator.deallocate(start.bnode.buf);
-    start.bnode.Destroy;
+    allocator.deallocate(fstart.bnode.buf);
+    fstart.bnode.Destroy;
   end;
 
   create_map;
@@ -353,10 +355,10 @@ var
 begin
   (* clean up *)
   if not empty then clear;
-  if start.bnode <> nil then
+  if fstart.bnode <> nil then
   begin
-    allocator.deallocate(start.bnode.buf);
-    start.bnode.Destroy;
+    allocator.deallocate(fstart.bnode.buf);
+    fstart.bnode.Destroy;
   end;
 
   create_map;
@@ -378,10 +380,10 @@ procedure TDeque<T>.clear;
 var
   node: TDequeMapNode<T>;
 begin
-  node := start.bnode.next;
+  node := fstart.bnode.next;
   if node <> nil then begin
-    (* destroy all nodes between (start.bnode, finish.bnode) *)
-    while (node <> finish.bnode) do
+    (* destroy all nodes between (fstart.bnode, ffinish.bnode) *)
+    while (node <> ffinish.bnode) do
     begin
       allocator.deallocate(node.buf, buf_size * sizeOf(T));
       node := node.next;
@@ -389,23 +391,33 @@ begin
     end;
   end;
 
-  if start.bnode <> finish.bnode then allocator.deallocate(finish.bnode.buf,
+  if fstart.bnode <> ffinish.bnode then allocator.deallocate(ffinish.bnode.buf,
                                                       buf_size * sizeOf(T));
-  finish := start;
+  ffinish := fstart;
+end;
+
+function TDeque<T>.start: TIterator<T>;
+begin
+  result := fstart;
+end;
+
+function TDeque<T>.finish: TIterator<T>;
+begin
+  result := ffinish;
 end;
 
 function TDeque<T>.front: T;
 begin
   if empty then
     exit;
-  result := iget(start);
+  result := iget(fstart);
 end;
 
 function TDeque<T>.back: T;
 begin
   if empty then
     exit;
-  result := finish.bnode.buf[finish.cur - 1];
+  result := ffinish.bnode.buf[finish.cur - 1];
 end;
 
 function TDeque<T>.capacity: integer;
@@ -447,8 +459,8 @@ var
   iter: TIterator<T>;
 begin
   i := 0;
-  iter := start;
-  while iter <> finish do
+  iter := fstart;
+  while iter <> ffinish do
   begin
     iadvance(iter);
     inc(i);
@@ -458,7 +470,7 @@ end;
 
 function TDeque<T>.empty: boolean;
 begin
-  result := (start.bnode = finish.bnode) and (start.cur = finish.cur);
+  result := (fstart.bnode = ffinish.bnode) and (fstart.cur = ffinish.cur);
 end;
 
 function TDeque<T>.at(const idx: integer): T;
@@ -469,30 +481,30 @@ end;
 
 function TDeque<T>.pop_front: T;
 begin
-  if start.cur = start.last - 1 then
+  if fstart.cur = fstart.last - 1 then
   begin
-    Result := start.bnode.buf[start.cur];
-    inc(start.cur);
+    Result := fstart.bnode.buf[start.cur];
+    inc(fstart.cur);
   end
   else Result := pop_front_aux;
 end;
 
 function TDeque<T>.pop_front_aux: T;
 begin
-  Result := start.bnode.buf[start.cur];
-  set_node(start, start.bnode.next);
-  allocator.deallocate(start.bnode.prev.buf, buf_size * sizeOf(T));
-  start.bnode.prev.Destroy;
-  start.cur := start.first;
+  Result := fstart.bnode.buf[start.cur];
+  set_node(fstart, fstart.bnode.next);
+  allocator.deallocate(fstart.bnode.prev.buf, buf_size * sizeOf(T));
+  fstart.bnode.prev.Destroy;
+  fstart.cur := fstart.first;
 end;
 
 procedure TDeque<T>.push_front(const obj: T);
 begin
-  if start.cur <> start.first then
+  if fstart.cur <> fstart.first then
   (* we have enough space *)
   begin
-    start.bnode.buf[start.cur - 1] := obj;
-    start.cur := start.cur - 1;
+    fstart.bnode.buf[start.cur - 1] := obj;
+    fstart.cur := fstart.cur - 1;
   end
   else
     push_front_aux(obj);
@@ -501,50 +513,50 @@ end;
 procedure TDeque<T>.push_front_aux(const obj: T);
 begin
   (* create and allocate new node *)
-  start.bnode.prev := TDequeMapNode<T>.Create;
-  start.bnode.prev.next := start.bnode;
-  start.bnode.prev.buf := allocator.allocate(buf_size * sizeOf(T));
+  fstart.bnode.prev := TDequeMapNode<T>.Create;
+  fstart.bnode.prev.next := fstart.bnode;
+  fstart.bnode.prev.buf := allocator.allocate(buf_size * sizeOf(T));
   try
     (* set new node *)
-    set_node(start, start.bnode.prev);
-    start.cur := start.last - 1;
-    start.bnode.buf[start.cur] := obj;
+    set_node(fstart, fstart.bnode.prev);
+    fstart.cur := fstart.last - 1;
+    fstart.bnode.buf[fstart.cur] := obj;
   except
     (* rollback *)
-    set_node(start, start.bnode.next);
-    start.cur := start.first;
-    allocator.deallocate(start.bnode.prev.buf, buf_size * sizeOf(T));
+    set_node(fstart, fstart.bnode.next);
+    fstart.cur := fstart.first;
+    allocator.deallocate(fstart.bnode.prev.buf, buf_size * sizeOf(T));
     dstl_raise_exception(E_ALLOCATE);
   end;
 end;
 
 function TDeque<T>.pop_back: T;
 begin
-  if finish.cur <> finish.first then
+  if ffinish.cur <> ffinish.first then
   begin
-    dec(finish.cur);
-    Result := finish.bnode.buf[finish.cur];
+    dec(ffinish.cur);
+    Result := ffinish.bnode.buf[finish.cur];
   end
   else Result := pop_back_aux;
 end;
 
 function TDeque<T>.pop_back_aux: T;
 begin
-  set_node(finish, finish.bnode.prev);
-  allocator.deallocate(finish.bnode.next.buf, buf_size * sizeOf(T));
-  finish.bnode.next.Destroy;
-  finish.bnode.next := nil;
-  finish.cur := finish.last - 1;
-  Result := finish.bnode.buf[finish.cur];
+  set_node(ffinish, ffinish.bnode.prev);
+  allocator.deallocate(ffinish.bnode.next.buf, buf_size * sizeOf(T));
+  ffinish.bnode.next.Destroy;
+  ffinish.bnode.next := nil;
+  ffinish.cur := ffinish.last - 1;
+  Result := ffinish.bnode.buf[finish.cur];
 end;
 
 procedure TDeque<T>.push_back(const obj: T);
 begin
-  if finish.cur <> finish.last - 1 then
+  if ffinish.cur <> ffinish.last - 1 then
   (* we have enough space *)
   begin
-    finish.bnode.buf[finish.cur] := obj;
-    inc(finish.cur);
+    ffinish.bnode.buf[finish.cur] := obj;
+    inc(ffinish.cur);
   end
   else
     push_back_aux(obj);
@@ -553,35 +565,35 @@ end;
 procedure TDeque<T>.push_back_aux(const obj: T);
 begin
   (* create new node *)
-  finish.bnode.next := TDequeMapNode<T>.Create;
-  finish.bnode.next.prev := finish.bnode;
+  ffinish.bnode.next := TDequeMapNode<T>.Create;
+  ffinish.bnode.next.prev := ffinish.bnode;
   (* set value *)
-  finish.bnode.buf[finish.cur] := obj;
+  ffinish.bnode.buf[finish.cur] := obj;
   (* set new node *)
-  set_node(finish, finish.bnode.next);
+  set_node(ffinish, ffinish.bnode.next);
   try
     (* allocate memory for the new node *)
-    finish.bnode.buf := allocator.allocate(buf_size * sizeOf(T));
+    ffinish.bnode.buf := allocator.allocate(buf_size * sizeOf(T));
   except
     dstl_raise_exception(E_ALLOCATE);
   end;
-  (* reset finish.cur *)
-  finish.cur := finish.first;
+  (* reset ffinish.cur *)
+  ffinish.cur := ffinish.first;
 end;
 
 function TDeque<T>.insert(Iterator: TIterator<T>; const obj: T): TIterator<T>;
 begin
   (* insert to the head *)
-  if iequals(start, Iterator) then
+  if iequals(fstart, Iterator) then
   begin
     push_front(obj);
-    Result := start;
+    Result := fstart;
   end
   (* insert to the tail *)
-  else if iequals(finish, Iterator) then
+  else if iequals(ffinish, Iterator) then
   begin
     push_back(obj);
-    Result := finish;
+    Result := ffinish;
     iretreat(Result);
   end
   else Result := insert_aux(Iterator, obj);
@@ -592,18 +604,18 @@ var
   index: integer;
   front1, front2, pos1, back1, back2: TIterator<T>;
 begin
-  index := idistance(start, Iterator);
+  index := idistance(fstart, Iterator);
   if (index < size div 2) then
   begin
     push_front(front);
-    front1 := start; iadvance(front1);
+    front1 := fstart; iadvance(front1);
     front2 := front1; iadvance(front2);
     pos1 := Iterator; iadvance(pos1);
     TIterAlgorithms<T>.copy(front2, pos1, front1);
   end
   else begin
     push_back(back);
-    back1 := finish; iretreat(back1);
+    back1 := ffinish; iretreat(back1);
     back2 := back1; iretreat(back2);
     TIterAlgorithms<T>.copy_backward(Iterator, back2, back1);
   end;
@@ -620,21 +632,21 @@ procedure TDeque<T>.fill_insert(position: TIterator<T>; n: integer; const obj: T
 var
   new_start, new_finish: TIterator<T>;
 begin
-  if position.cur = start.cur then
+  if position.cur = fstart.cur then
   begin
     new_start := reserve_elements_at_front(n);
     try
-      TIterAlgorithms<T>.fill(new_start, start, obj);
-      start := new_start;
+      TIterAlgorithms<T>.fill(new_start, fstart, obj);
+      fstart := new_start;
     except
     end;
   end
-  else if position.cur = finish.cur then
+  else if position.cur = ffinish.cur then
   begin
     new_finish := reserve_elements_at_back(n);
     try
-      TIterAlgorithms<T>.fill(finish, new_finish, obj);
-      finish := finish;
+      TIterAlgorithms<T>.fill(ffinish, new_finish, obj);
+      ffinish := ffinish;
     except
     end;
   end
@@ -645,32 +657,32 @@ end;
 procedure TDeque<T>.insert_aux(position: TIterator<T>; n: integer; const obj: T);
 var
   elemsbef, elemsaft, leng: integer;
-  new_start, old_start, start_n, tmp, mid2: TIterator<T>;
-  new_finish, old_finish, finish_n: TIterator<T>;
+  new_start, old_start, fstart_n, tmp, mid2: TIterator<T>;
+  new_finish, old_finish, ffinish_n: TIterator<T>;
 begin
-  elemsbef := idistance(start, position);
+  elemsbef := idistance(fstart, position);
   leng := size;
 
   if elemsbef < leng div 2 then
   begin
     new_start := reserve_elements_at_front(n);
-    old_start := start;
+    old_start := fstart;
     try
       if elemsbef >= n then
       begin
-        start_n := start;
-        iadvance_by(start_n, n);
-        TIterAlgorithms<T>.copy(start, start_n, new_start);
-        start := new_start;
-        TIterAlgorithms<T>.copy(start_n, position, old_start);
+        fstart_n := fstart;
+        iadvance_by(fstart_n, n);
+        TIterAlgorithms<T>.copy(fstart, fstart_n, new_start);
+        fstart := new_start;
+        TIterAlgorithms<T>.copy(fstart_n, position, old_start);
         tmp := position;
         iretreat_by(tmp, n);
         TIterAlgorithms<T>.fill(tmp, position, obj);
       end
       else begin
-        mid2 := TIterAlgorithms<T>.copy(start, position, new_start);
-        TIterAlgorithms<T>.fill(mid2, start, obj);
-        start := new_start;
+        mid2 := TIterAlgorithms<T>.copy(fstart, position, new_start);
+        TIterAlgorithms<T>.fill(mid2, fstart, obj);
+        fstart := new_start;
         TIterAlgorithms<T>.fill(old_start, position, obj);
       end
     except
@@ -678,16 +690,16 @@ begin
   end
   else begin
     new_finish := reserve_elements_at_back(n);
-    old_finish := finish;
+    old_finish := ffinish;
     elemsaft := leng - elemsbef;
     try
       if elemsaft > n then
       begin
-        finish_n := finish;
-        iretreat_by(finish_n, n);
-        TIterAlgorithms<T>.copy(finish_n, finish, finish);
-        finish := new_finish;
-        TIterAlgorithms<T>.copy_backward(position, finish_n, old_finish);
+        ffinish_n := ffinish;
+        iretreat_by(ffinish_n, n);
+        TIterAlgorithms<T>.copy(ffinish_n, ffinish, ffinish);
+        ffinish := new_finish;
+        TIterAlgorithms<T>.copy_backward(position, ffinish_n, old_finish);
         tmp := position;
         iadvance_by(tmp, n);
         TIterAlgorithms<T>.fill(position, tmp, obj);
@@ -695,9 +707,9 @@ begin
       else begin
         tmp := position;
         iadvance_by(tmp, n);
-        TIterAlgorithms<T>.fill(finish, tmp, obj);
-        TIterAlgorithms<T>.copy(position, finish, tmp);
-        finish := new_finish;
+        TIterAlgorithms<T>.fill(ffinish, tmp, obj);
+        TIterAlgorithms<T>.copy(position, ffinish, tmp);
+        ffinish := new_finish;
         TIterAlgorithms<T>.fill(position, old_finish, obj);
       end;
     except
@@ -713,18 +725,18 @@ begin
   n := first.handle.idistance(first, last);
 
   (* insert to head *)
-  if  position.cur = start.cur then
+  if  position.cur = fstart.cur then
   begin
     new_start := reserve_elements_at_front(n);
     TIterAlgorithms<T>.copy(first, last, new_start);
-    start := new_start;
+    fstart := new_start;
   end
   (* insert to tail *)
-  else if position.cur = finish.cur then
+  else if position.cur = ffinish.cur then
   begin
     new_finish := reserve_elements_at_back(n);
-    TIterAlgorithms<T>.copy(first, last, finish);
-    finish := new_finish;
+    TIterAlgorithms<T>.copy(first, last, ffinish);
+    ffinish := new_finish;
   end
   else insert_aux(position, first, last, n);
 end;
@@ -733,23 +745,23 @@ procedure TDeque<T>.insert_aux(position: TIterator<T>; first, last: TIterator<T>
 var
   elemsbef, elemsaft: integer;
   leng, tmp: integer;
-  old_start, new_start, start_n, mid, mid2: TIterator<T>;
-  old_finish, new_finish, finish_n: TIterator<T>;
+  old_start, new_start, fstart_n, mid, mid2: TIterator<T>;
+  old_finish, new_finish, ffinish_n: TIterator<T>;
 begin
-  elemsbef := idistance(start, position);
+  elemsbef := idistance(fstart, position);
   leng := size;
   if elemsbef < leng div 2 then
   begin
     new_start := reserve_elements_at_front(n);
-    old_start := start;
+    old_start := fstart;
     try
       if elemsbef >= n then
       begin
-        start_n := start;
-        iadvance_by(start_n, n);
-        TIterAlgorithms<T>.copy(start, start_n, new_start);
-        start := new_start;
-        TIterAlgorithms<T>.copy(start_n, position, old_start);
+        fstart_n := fstart;
+        iadvance_by(fstart_n, n);
+        TIterAlgorithms<T>.copy(fstart, fstart_n, new_start);
+        fstart := new_start;
+        TIterAlgorithms<T>.copy(fstart_n, position, old_start);
         iretreat_by(position, n);
         TIterAlgorithms<T>.copy(first, last, position);
       end
@@ -761,9 +773,9 @@ begin
           mid.handle.iadvance(mid);
           dec(tmp);
         end;
-        mid2 := TIterAlgorithms<T>.copy(start, position, new_start);
+        mid2 := TIterAlgorithms<T>.copy(fstart, position, new_start);
         TIterAlgorithms<T>.copy(first, mid, mid2);
-        start := new_start;
+        fstart := new_start;
         TIterAlgorithms<T>.copy(mid, last, old_start);
       end;
     except
@@ -771,17 +783,17 @@ begin
   end
   else begin
     new_finish := reserve_elements_at_back(n);
-    old_finish := finish;
+    old_finish := ffinish;
     elemsaft := leng - elemsbef;
 
     try
       if elemsaft > n then
       begin
-        finish_n := finish;
-        iretreat_by(finish_n, n);
-        TIterAlgorithms<T>.copy(finish_n, finish, finish);
-        finish := new_finish;
-        TIterAlgorithms<T>.copy_backward(position, finish_n, old_finish);
+        ffinish_n := ffinish;
+        iretreat_by(ffinish_n, n);
+        TIterAlgorithms<T>.copy(ffinish_n, ffinish, ffinish);
+        ffinish := new_finish;
+        TIterAlgorithms<T>.copy_backward(position, ffinish_n, old_finish);
         TIterAlgorithms<T>.copy(first, last, position);
       end
       else begin
@@ -792,9 +804,9 @@ begin
           mid.handle.iadvance(mid);
           dec(tmp);
         end;
-        mid2 := TIterAlgorithms<T>.copy(mid, last, finish);
-        TIterAlgorithms<T>.copy(position, finish, mid2);
-        finish := new_finish;
+        mid2 := TIterAlgorithms<T>.copy(mid, last, ffinish);
+        TIterAlgorithms<T>.copy(position, ffinish, mid2);
+        ffinish := new_finish;
         TIterAlgorithms<T>.copy(first, mid, position);
       end;
     except
@@ -809,21 +821,21 @@ var
 begin
   next := it;
   iadvance(next);
-  index := idistance(start, it);
+  index := idistance(fstart, it);
 
   (* move elements *)
   if (index < size div 2) then
   begin
-    TIterAlgorithms<T>.copy_backward(start, it, next);
+    TIterAlgorithms<T>.copy_backward(fstart, it, next);
     pop_front;
   end
   else
   begin
-    TIterAlgorithms<T>.copy(next, finish, it);
+    TIterAlgorithms<T>.copy(next, ffinish, it);
     pop_back;
   end;
 
-  Result := start;
+  Result := fstart;
   while index > 0 do
   begin
     iadvance(Result);
@@ -838,61 +850,61 @@ var
   new_start, new_finish: TIterator<T>;
   cur: TDequeMapNode<T>;
 begin
-  (* if _start == start and _finish == finish just clear *)
-  if (iequals(start, _start)) and (iequals(_finish, finish)) then
+  (* if _start == fstart and _finish == ffinish just clear *)
+  if (iequals(fstart, _start)) and (iequals(_finish, ffinish)) then
   begin
     clear;
-    Result := finish;
+    Result := ffinish;
   end
   else begin
     n := idistance(_start, _finish);
-    elems_before := idistance(start, _start);
+    elems_before := idistance(fstart, _start);
 
     if elems_before < (size - n) div 2 then
     begin
       (* move elements *)
-      TIterAlgorithms<T>.copy_backward(start, _start, _finish);
-      new_start := start;
+      TIterAlgorithms<T>.copy_backward(fstart, _start, _finish);
+      new_start := fstart;
       iadvance_by(new_start, n);
-      cur := start.bnode;
+      cur := fstart.bnode;
       (* free buffer *)
       while cur <> new_start.bnode do
       begin
         allocator.deallocate(cur.buf, buf_size * sizeOf(T));
         cur := cur.next;
       end;
-      (* set new start *)
-      start := new_start;
+      (* set new fstart *)
+      fstart := new_start;
     end
     else begin
       (* move elements *)
-      TIterAlgorithms<T>.copy(_finish, finish, _start);
-      new_finish := finish;
+      TIterAlgorithms<T>.copy(_finish, ffinish, _start);
+      new_finish := ffinish;
       iretreat_by(new_finish, n);
       (* free buffer *)
       cur := new_finish.bnode;
       cur := cur.next;
       allocator.deallocate(cur.buf, buf_size * sizeOf(T));
-      while cur <> finish.bnode do
+      while cur <> ffinish.bnode do
       begin
         cur := cur.next;
         allocator.deallocate(cur.buf, buf_size * sizeOf(T));
       end;
-      finish := new_finish;
+      ffinish := new_finish;
     end;
-    Result := start;
+    Result := fstart;
     iadvance_by(Result, elems_before);
   end;
 end;
 
 procedure TDeque<T>.swap(var dqe: TDeque<T>);
 begin
-  (* swap allocator, buf_size, map, start and finish *)
+  (* swap allocator, buf_size, map, fstart and ffinish *)
   _TSwap<IAllocator<T>>.swap(Self.allocator, dqe.allocator);
   _TSwap<integer>.swap(Self.buf_size, dqe.buf_size);
   _TSwap<TDequeMapNode<T>>.swap(Self.map, dqe.map);
-  _TSwap<TIterator<T>>.swap(Self.start, dqe.start);
-  _TSwap<TIterator<T>>.swap(Self.finish, dqe.finish);
+  _TSwap<TIterator<T>>.swap(Self.fstart, dqe.fstart);
+  _TSwap<TIterator<T>>.swap(Self.ffinish, dqe.ffinish);
 end;
 
 function TDeque<T>.get_allocator: IAllocator<T>;
