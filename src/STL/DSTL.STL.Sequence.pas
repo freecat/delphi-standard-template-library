@@ -1,0 +1,111 @@
+unit DSTL.STL.Sequence;
+
+interface
+
+uses
+  DSTL.Types, DSTL.STL.Iterator, DSTL.Exception;
+
+type
+  TSequence<T> = class(TContainer<T>)
+    procedure add(const obj: T); override;
+    procedure remove(const obj: T); override;
+    procedure clear; override;
+    function start: TIterator<T>; virtual;
+    function finish: TIterator<T>; virtual;
+    function front: T; virtual;
+    function back: T; virtual;
+    function max_size: Integer; virtual;
+    function size: Integer; virtual;
+    function empty: boolean; virtual;
+    function at(const idx: Integer): T; virtual;
+    function pop_front: T; virtual;
+    procedure push_front(const obj: T); virtual;
+    function pop_back: T; virtual;
+    procedure push_back(const obj: T); virtual;
+  end;
+
+implementation
+{ ******************************************************************************
+  *                                                                            *
+  *                                TSequence                                   *
+  *                                                                            *
+  ****************************************************************************** }
+procedure TSequence<T>.add(const obj: T);
+begin
+end;
+
+procedure TSequence<T>.remove(const obj: T);
+begin
+end;
+
+procedure TSequence<T>.clear;
+begin
+end;
+
+function TSequence<T>.start: TIterator<T>;
+begin
+end;
+
+function TSequence<T>.finish: TIterator<T>;
+begin
+end;
+
+function TSequence<T>.front: T;
+begin
+end;
+
+function TSequence<T>.back: T;
+begin
+end;
+
+function TSequence<T>.max_size: Integer;
+begin
+  result := 0;
+end;
+
+function TSequence<T>.size: Integer;
+begin
+  result := 0;
+end;
+
+function TSequence<T>.empty: boolean;
+begin
+  result := false;
+end;
+
+function TSequence<T>.at(const idx: Integer): T;
+begin
+end;
+
+function TSequence<T>.pop_front: T;
+begin
+end;
+
+procedure TSequence<T>.push_front(const obj: T);
+begin
+end;
+
+function TSequence<T>.pop_back: T;
+begin
+end;
+
+procedure TSequence<T>.push_back(const obj: T);
+begin
+end;
+(*
+procedure TSequence<T>.insert(Iterator: TIterator<T>; const obj: T);
+begin
+end;
+
+function TSequence<T>.erase(it: TIterator<T>): TIterator<T>;
+begin
+
+end;
+
+function TSequence<T>.erase(_start, _finish: TIterator<T>): TIterator<T>;
+begin
+
+end;
+*)
+
+end.
