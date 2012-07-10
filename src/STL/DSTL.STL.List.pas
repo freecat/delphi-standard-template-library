@@ -32,7 +32,7 @@ interface
 uses
   DSTL.Config,
   SysUtils, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.Iterator, DSTL.STL.Vector,
-  Generics.Defaults, DSTL.Exception;
+  Generics.Defaults, DSTL.Exception, DSTL.STL.Sequence;
 
 type
 
@@ -333,12 +333,14 @@ function TList<T>.start: TIterator<T>;
 begin
   result.node := head;
   result.handle := self;
+  result.flags := [ifBidirectional];
 end;
 
 function TList<T>.finish: TIterator<T>;
 begin
   result.node := fin_node;
   result.handle := self;
+  result.flags := [ifBidirectional];
 end;
 
 function TList<T>.front: T;

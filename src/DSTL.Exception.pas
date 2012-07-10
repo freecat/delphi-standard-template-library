@@ -39,22 +39,25 @@ type
   EDSTLOutOfMemoryException = class(EDSTLException) end;
   EDSTLOutOfBoundException = class(EDSTLException) end;
   EDSTLAllocateException = class(EDSTLException) end;
+  EDSTLNotImplemented = class(EDSTLException) end;
 
 const
-  errornr = 6;
+  errornr = 7;
   E_OUT_OF_RANGE = $1;
   E_INVALID_ARG = $2;
   E_FILE_NOT_FOUND = $3;
   E_OUT_OF_MEMORY = $4;
   E_OUT_OF_BOUND = $5;
   E_ALLOCATE = $6;
+  E_NOT_IMPL = $7;
 
   exception_msg: array [1 .. errornr] of string = ('Out of range',
     'Invalid argument: %s',
     'File ''%s'' not found',
     'Out of memory',
     'Out of bound',
-    'Failed allocating memory');
+    'Failed allocating memory',
+    'Not implemented');
 
 var
   exceptions: array [1..errornr] of EDSTLException;

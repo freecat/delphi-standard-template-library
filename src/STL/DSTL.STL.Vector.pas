@@ -30,7 +30,8 @@ unit DSTL.STL.Vector;
 interface
 
 uses
-  Windows, DSTL.Types, DSTL.STL.Iterator, DSTL.Exception, DSTL.STL.Alloc;
+  Windows, DSTL.Types, DSTL.STL.Iterator, DSTL.Exception, DSTL.STL.Alloc,
+  DSTL.STL.Sequence;
 
 type
   TVector<T> = class(TSequence<T>)
@@ -240,12 +241,14 @@ function TVector<T>.start: TIterator<T>;
 begin
   result.position := 0;
   result.handle := self;
+  result.flags := [ifRandomAccess];
 end;
 
 function TVector<T>.finish: TIterator<T>;
 begin
   result.position := len;
   result.handle := self;
+  result.flags := [ifRandomAccess];
 end;
 
 function TVector<T>.front: T;

@@ -25,12 +25,6 @@
 			<CfgParent>Base</CfgParent>
 			<Base>true</Base>
 		</PropertyGroup>
-		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
-			<Cfg_2_Win32>true</Cfg_2_Win32>
-			<CfgParent>Cfg_2</CfgParent>
-			<Cfg_2>true</Cfg_2>
-			<Base>true</Base>
-		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base)'!=''">
 			<DCC_DependencyCheckOutputName>bin\DSTL.bpl</DCC_DependencyCheckOutputName>
 			<DCC_DcuOutput>./dcu</DCC_DcuOutput>
@@ -66,12 +60,8 @@
 			<DCC_Optimize>false</DCC_Optimize>
 			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
 		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-			<VerInfo_MinorVer>5</VerInfo_MinorVer>
-			<VerInfo_Keys>CompanyName=Jimx;FileDescription=Delphi Standard Template Library;FileVersion=0.5.0.8;InternalName=DSTL;LegalCopyright=(C)Copyright Jimx 2012;LegalTrademarks=;OriginalFilename=DSTL.bpl;ProductName=Delphi Standard Template Library;ProductVersion=0.1.0.0;Comments=</VerInfo_Keys>
-		</PropertyGroup>
 		<ItemGroup>
-			<DelphiCompile Include="$(MainSource)">
+			<DelphiCompile Include="DSTL.dpk">
 				<MainSource>MainSource</MainSource>
 			</DelphiCompile>
 			<DCCReference Include="rtl.dcp"/>
@@ -102,20 +92,21 @@
 			<DCCReference Include="src\STL\DSTL.STL.Alloc.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.DequeMap.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Heap.pas"/>
+			<DCCReference Include="src\STL\DSTL.STL.Sequence.pas"/>
 			<None Include="src\DSTL.inc"/>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
 			<BuildConfiguration Include="Debug">
 				<Key>Cfg_2</Key>
 				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-			<BuildConfiguration Include="Base">
-				<Key>Base</Key>
 			</BuildConfiguration>
 			<BuildConfiguration Include="Release">
 				<Key>Cfg_1</Key>
 				<CfgParent>Base</CfgParent>
 			</BuildConfiguration>
 		</ItemGroup>
-		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
 		<ProjectExtensions>
 			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
 			<Borland.ProjectType>Package</Borland.ProjectType>
@@ -152,9 +143,9 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="%BDSBIN%\bcboffice2k160.bpl">Embarcadero C++Builder Office 2000 Servers Package</Excluded_Packages>
+						<Excluded_Packages Name="%BDSBIN%\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+						<Excluded_Packages Name="%BDSBIN%\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
 					<Parameters>
 						<Parameters Name="UseLauncher">False</Parameters>
@@ -170,5 +161,4 @@
 			</BorlandProject>
 			<ProjectFileVersion>12</ProjectFileVersion>
 		</ProjectExtensions>
-		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
 	</Project>

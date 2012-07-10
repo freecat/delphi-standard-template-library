@@ -31,7 +31,7 @@ interface
 
 uses
   SysUtils, DSTL.Config, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.TreeNode,
-  DSTL.Utils.Pair, DSTL.STL.DequeMap;
+  DSTL.Utils.Pair, DSTL.STL.DequeMap, DSTL.Exception;
 
 const
   defaultArrSize = 16;
@@ -45,7 +45,7 @@ type
   TIteratorHandle<T1, T2> = class;
   IteratorStructure = (isVector, isDeque, isList, isMap, isSet, isHash);
 
-  TIteratorFlag = (ifBidirectional, ifRandom);
+  TIteratorFlag = (ifForward, ifBidirectional, ifRandomAccess);
   TIteratorFlags = set of TIteratorFlag;
 
   TIterator<T> = record
@@ -189,38 +189,42 @@ end;
 
 procedure TContainer<T>.iadvance(var Iterator: TIterator<T>);
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 procedure TContainer<T>.iretreat(var Iterator: TIterator<T>);
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T>.iget(const Iterator: TIterator<T>): T;
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 procedure TContainer<T>.iput(const Iterator: TIterator<T>; const obj: T);
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T>.iremove(const Iterator: TIterator<T>): TIterator<T>;
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T>.iat_end(const Iterator: TIterator<T>): boolean;
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T>.iequals(const iter1, iter2: TIterator<T>): Boolean;
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T>.idistance(const iter1, iter2: TIterator<T>): integer;
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 constructor TContainer<T1, T2>.Create;
@@ -230,40 +234,44 @@ end;
 
 procedure TContainer<T1, T2>.iadvance(var Iterator: TIterator<T1, T2>);
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 procedure TContainer<T1, T2>.iretreat(var Iterator: TIterator<T1, T2>);
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T1, T2>.iget(const Iterator: TIterator<T1, T2>)
   : TPair<T1, T2>;
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 procedure TContainer<T1, T2>.iput(const Iterator: TIterator<T1, T2>; const obj: TPair<T1, T2>);
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T1, T2>.iremove(const Iterator: TIterator<T1, T2>): TIterator<T1, T2>;
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T1, T2>.iat_end(const Iterator: TIterator<T1, T2>): boolean;
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T1, T2>.iequals(const iter1,
   iter2: TIterator<T1, T2>): Boolean;
 begin
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 function TContainer<T1, T2>.idistance(const iter1, iter2: TIterator<T1, T2>): integer;
 begin
-
+  dstl_raise_exception(E_NOT_IMPL);
 end;
 
 {$ENDREGION}

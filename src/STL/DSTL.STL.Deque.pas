@@ -31,7 +31,7 @@ interface
 
 uses
   Windows, Generics.Defaults, SysUtils,
-  DSTL.Types, DSTL.STL.Iterator, DSTL.STL.Vector, DSTL.Exception, DSTL.STL.Alloc,
+  DSTL.Types, DSTL.STL.Iterator, DSTL.STL.Sequence, DSTL.Exception, DSTL.STL.Alloc,
   DSTL.STL.DequeMap, DSTL.Algorithm;
 
 const
@@ -79,7 +79,7 @@ type
     constructor Create(alloc: IAllocator<T>); overload;
     constructor Create(n: integer; value: T); overload;
     constructor Create(first, last: TIterator<T>); overload;
-    constructor Create(x: TVector<T>); overload;
+    constructor Create(x: TDeque<T>); overload;
     destructor Destroy; override;
     procedure assign(first, last: TIterator<T>); overload;
     procedure assign(n: integer; u: T); overload;
@@ -157,7 +157,7 @@ begin
   ffinish.handle := Self;
 end;
 
-constructor TDeque<T>.Create(x: TVector<T>);
+constructor TDeque<T>.Create(x: TDeque<T>);
 begin
   allocator := TAllocator<T>.Create;
   buf_size := defaultBufSize;
@@ -399,11 +399,13 @@ end;
 function TDeque<T>.start: TIterator<T>;
 begin
   result := fstart;
+  result.flags := [ifBidirectional];
 end;
 
 function TDeque<T>.finish: TIterator<T>;
 begin
   result := ffinish;
+  result.flags := [ifBidirectional];
 end;
 
 function TDeque<T>.front: T;

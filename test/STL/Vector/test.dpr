@@ -5,7 +5,7 @@ program test;
 {$R *.res}
 
 uses
-  System.SysUtils,
+  SysUtils,
   DSTL.STL.Vector,
   DSTL.STL.Iterator;
 

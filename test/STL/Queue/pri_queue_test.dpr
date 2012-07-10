@@ -3,13 +3,13 @@ program pri_queue_test;
 {$APPTYPE CONSOLE}
 
 uses
-  SysUtils, DSTL.STL.Queues;
+  SysUtils, DSTL.STL.Queues, DSTL.STL.Vector;
 
 var
   mypq: TPriorityQueue<integer>;
 begin
   try
-    mypq := TPriorityQueue<integer>.Create();
+    mypq := TPriorityQueue<integer>.Create(TVector<integer>.Create);
     mypq.push(30);
     mypq.push(100);
     mypq.push(25);

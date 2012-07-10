@@ -30,7 +30,7 @@ unit DSTL.STL.Stack;
 interface
 
 uses
-  DSTL.STL.Vector, DSTL.STL.Deque;
+  DSTL.STL.Sequence, DSTL.STL.Deque;
 
 type
   TStack<T> = class
