@@ -55,7 +55,7 @@ contains
   DSTL.Utils.StopWatch in 'src\Utils\DSTL.Utils.StopWatch.pas',
   DSTL.STL.Alloc in 'src\STL\DSTL.STL.Alloc.pas',
   DSTL.STL.DequeMap in 'src\STL\DSTL.STL.DequeMap.pas',
-  DSTL.STL.Heap in 'src\STL\DSTL.STL.Heap.pas',
-  DSTL.STL.Sequence in 'src\STL\DSTL.STL.Sequence.pas';
+  DSTL.STL.Sequence in 'src\STL\DSTL.STL.Sequence.pas',
+  DSTL.Algorithm.Heap in 'src\Algorithm\DSTL.Algorithm.Heap.pas';
 
 end.

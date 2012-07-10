@@ -44,6 +44,7 @@ type
   TBinaryPredicate<T1, T2> = function (p1: T1; p2: T2): boolean;
   TBinaryFunction<Arg1, Arg2, Res> = function (p1: Arg1; p2: Arg2): Res;
   TCompare<T> = function (left, right: T): integer;
+  TGenerator<T> = function : T;
 
   (* make it easier to swap *)
   _TSwap<T> = class

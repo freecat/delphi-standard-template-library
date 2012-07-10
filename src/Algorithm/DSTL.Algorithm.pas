@@ -48,10 +48,14 @@ type
                         binary_op: TBinaryFunction<T, T, T>): TIterator<T>;
     class function adjacent_find(first, last: TIterator<T>): TIterator<T>;  overload;
     class function adjacent_find(first, last: TIterator<T>; pred: TBinaryPredicate<T, T>): TIterator<T>;  overload;
+    class function binary_search(first, last: Titerator<T>; value: T): boolean; overload;
+    class function binary_search(first, last: TIterator<T>; value: T; comp: TCompare<T>): boolean; overload;
     class function copy(first, last, res: TIterator<T>): TIterator<T>;
     class function copy_backward(first, last, res: TIterator<T>): TIterator<T>;
     class function count(first, last: TIterator<T>; value: T): integer;
     class function count_if(first, last: TIterator<T>; pred: TPredicate<T>): integer;
+    class function equal(first1, last1, first2: TIterator<T>): boolean; overload;
+    class function equal(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): boolean; overload;
     class procedure fill(first, last: TIterator<T>; value: T);
     class function fill_n(first: TIterator<T>; n: integer; value: T): TIterator<T>;
     class function find(first, last: TIterator<T>; value: T): TIterator<T>;
@@ -61,6 +65,15 @@ type
     class function find_first_of(first1, last1, first2, last2: TIterator<T>): TIterator<T>;  overload;
     class function find_first_of(first1, last1, first2, last2: TIterator<T>; pred: TBinaryPredicate<T, T>): TIterator<T>; overload;
     class procedure for_each(first, last: TIterator<T>; f: Func<T>);
+    class procedure generate(first, last: TIterator<T>; gen: TGenerator<T>);
+    class procedure generate_n(first: TIterator<T>; n: TSizeType; gen: TGenerator<T>);
+    class function includes(first1, last1, first2, last2: TIterator<T>): boolean; overload;
+    class function includes(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean; overload;
+    class procedure iter_swap(a, b: TIterator<T>);
+    class function lexicographical_compare(first1, last1, first2, last2: TIterator<T>): boolean; overload;
+    class function lexicographical_compare(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean; overload;
+    class function lower_bound(first, last: TIterator<T>; value: T): TIterator<T>; overload;
+    class function lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>; overload;
   end;
 
   Func<T1, T2> = procedure(p: TPair<T1, T2>);
@@ -174,6 +187,18 @@ begin
   Result := last;
 end;
 
+class function TIterAlgorithms<T>.binary_search(first, last: Titerator<T>; value: T): boolean;
+begin
+  first := lower_bound(first,last,value);
+  exit((not first.handle.iequals(first, last)) and (not(TComparer<T>.Default.compare(value, first.handle.iget(first)) < 0)));
+end;
+
+class function TIterAlgorithms<T>.binary_search(first, last: TIterator<T>; value: T; comp: TCompare<T>): boolean;
+begin
+  first := lower_bound(first,last,value, comp);
+  exit((not first.handle.iequals(first, last)) and (not(comp(value, first.handle.iget(first)) < 0)));
+end;
+
 class function TIterAlgorithms<T>.copy(first, last, res: TIterator<T>): TIterator<T>;
 var
   n: integer;
@@ -218,6 +243,28 @@ begin
     if pred(first.handle.iget(first)) then inc(Result);
     first.handle.iadvance(first);
   end;
+end;
+
+class function TIterAlgorithms<T>.equal(first1, last1, first2: TIterator<T>): boolean;
+begin
+  while not first1.handle.iequals(first1, last1) do
+  begin
+    if TComparer<T>.Default.Compare(first1.handle.iget(first1), first2.handle.iget(first2)) <> 0 then exit(false);
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  exit(true);
+end;
+
+class function TIterAlgorithms<T>.equal(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): boolean;
+begin
+  while not first1.handle.iequals(first1, last1) do
+  begin
+    if not pred(first1.handle.iget(first1), first2.handle.iget(first2)) then exit(false);
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  exit(true);
 end;
 
 class procedure TIterAlgorithms<T>.fill(first, last: TIterator<T>; value: T);
@@ -371,6 +418,148 @@ begin
     f(first.handle.iget(first));
     op.advance(first);
   end;
+end;
+
+class procedure TIterAlgorithms<T>.generate(first, last: TIterator<T>; gen: TGenerator<T>);
+begin
+  while not first.handle.iequals(first, last) do
+  begin
+    first.handle.iput(first, gen);
+    first.handle.iadvance(first);
+  end;
+end;
+
+class procedure TIterAlgorithms<T>.generate_n(first: TIterator<T>; n: TSizeType; gen: TGenerator<T>);
+begin
+  while n > 0 do
+  begin
+    dec(n);
+    first.handle.iput(first, gen);
+    first.handle.iadvance(first);
+  end;
+end;
+
+class function TIterAlgorithms<T>.includes(first1, last1, first2, last2: TIterator<T>): boolean;
+begin
+  while not first1.handle.iequals(first1, last1) do
+  begin
+    if TComparer<T>.Default.Compare(first2.handle.iget(first2), first1.handle.iget(first1)) < 0 then break
+    else if TComparer<T>.Default.Compare(first1.handle.iget(first1), first2.handle.iget(first2)) < 0 then first1.handle.iadvance(first1)
+    else begin
+      first1.handle.iadvance(first1);
+      first2.handle.iadvance(first2);
+    end;
+    if first2.handle.iequals(first2, last2) then exit(true);
+  end;
+  exit(false);
+end;
+
+class function TIterAlgorithms<T>.includes(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean;
+begin
+  while not first1.handle.iequals(first1, last1) do
+  begin
+    if comp(first2.handle.iget(first2), first1.handle.iget(first1)) < 0 then break
+    else if comp(first1.handle.iget(first1), first2.handle.iget(first2)) < 0 then first1.handle.iadvance(first1)
+    else begin
+      first1.handle.iadvance(first1);
+      first2.handle.iadvance(first2);
+    end;
+    if first2.handle.iequals(first2, last2) then exit(true);
+  end;
+  exit(false);
+end;
+
+class procedure TIterAlgorithms<T>.iter_swap(a, b: TIterator<T>);
+var
+  tmp: T;
+begin
+  tmp := a.handle.iget(a);
+  a.handle.iput(a, b.handle.iget(b));
+  b.handle.iput(b, tmp);
+end;
+
+class function TIterAlgorithms<T>.lexicographical_compare(first1, last1, first2, last2: TIterator<T>): boolean;
+begin
+  while not first1.handle.iequals(first1, last1) do
+  begin
+    if (first2.handle.iequals(first2, last2) or
+        (TComparer<T>.Default.compare(first2.handle.iget(first2), first1.handle.iget(first1)) < 0)) then
+    exit(false)
+    else if (TComparer<T>.Default.compare(first1.handle.iget(first1), first2.handle.iget(first2)) < 0) then
+    exit(true);
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  Result := not first2.handle.iequals(first2, last2);
+end;
+
+class function TIterAlgorithms<T>.lexicographical_compare(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean;
+begin
+    while not first1.handle.iequals(first1, last1) do
+  begin
+    if (first2.handle.iequals(first2, last2) or
+        (comp(first2.handle.iget(first2), first1.handle.iget(first1)) < 0)) then
+    exit(false)
+    else if (comp(first1.handle.iget(first1), first2.handle.iget(first2)) < 0) then
+    exit(true);
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  Result := not first2.handle.iequals(first2, last2);
+end;
+
+class function TIterAlgorithms<T>.lower_bound(first, last: TIterator<T>; value: T): TIterator<T>;
+var
+  it: TIterator<T>;
+  count, step, tmp: integer;
+begin
+  count := first.handle.idistance(first,last);
+  while (count>0) do
+  begin
+    it := first;
+    step:=count div 2;
+    tmp := step;
+    while tmp > 0 do
+    begin
+      it.handle.iadvance(it);
+      dec(step);
+    end;
+    if TComparer<T>.Default.Compare(it.handle.iget(it), value) < 0 then
+    begin
+      it.handle.iadvance(it);
+      first := it;
+      count := count - (step + 1);
+    end
+    else count := step;
+  end;
+  exit(first);
+end;
+
+class function TIterAlgorithms<T>.lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>;
+var
+  it: TIterator<T>;
+  count, step, tmp: integer;
+begin
+  count := first.handle.idistance(first,last);
+  while (count>0) do
+  begin
+    it := first;
+    step:=count div 2;
+    tmp := step;
+    while tmp > 0 do
+    begin
+      it.handle.iadvance(it);
+      dec(step);
+    end;
+    if comp(it.handle.iget(it), value) < 0 then                   // or: if (comp(*it,value)), for the comp version
+    begin
+      it.handle.iadvance(it);
+      first := it;
+      count := count - (step + 1);
+    end
+    else count := step;
+  end;
+  exit(first);
 end;
 
 class procedure TIterAlgorithms<T1, T2>.for_each(first, last: TIterator<T1, T2>;

@@ -30,7 +30,7 @@ unit DSTL.STL.Queues;
 interface
 
 uses
-  DSTL.STL.Sequence, DSTL.STL.Deque, DSTL.STL.Heap;
+  DSTL.STL.Sequence, DSTL.STL.Deque, DSTL.Algorithm.Heap;
 
 type
   TQueue<T> = class

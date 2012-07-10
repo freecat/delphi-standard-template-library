@@ -91,8 +91,8 @@
 			<DCCReference Include="src\Utils\DSTL.Utils.StopWatch.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Alloc.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.DequeMap.pas"/>
-			<DCCReference Include="src\STL\DSTL.STL.Heap.pas"/>
 			<DCCReference Include="src\STL\DSTL.STL.Sequence.pas"/>
+			<DCCReference Include="src\Algorithm\DSTL.Algorithm.Heap.pas"/>
 			<None Include="src\DSTL.inc"/>
 			<BuildConfiguration Include="Base">
 				<Key>Base</Key>
