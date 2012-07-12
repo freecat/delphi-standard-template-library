@@ -5,7 +5,7 @@ program adjacent_find_test;
 {$R *.res}
 
 uses
-  System.SysUtils,
+  SysUtils,
   DSTL.Algorithm,
   DSTL.STL.Vector,
   DSTL.STL.Iterator;
@@ -13,7 +13,6 @@ uses
 var
   vec: TVector<integer>;
   it: TIterator<integer>;
-  i: integer;
 
 function myfunc(p1, p2: integer): boolean;
 begin

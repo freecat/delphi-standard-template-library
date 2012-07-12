@@ -36,7 +36,13 @@ type
 {$REGION 'TIterAlgorithms'}
   Func<T> = function(p: T): T;
 
+  {$HINTS OFF}
   TIterAlgorithms<T> = class
+  private
+    class procedure inc_it(var it: TIterator<T>; n: integer);
+    class procedure _sort(first, last: TIterator<T>; l, r: integer); overload;
+    class procedure _sort(first, last: TIterator<T>; l, r: integer; comp: TCompare<T>); overload;
+  public
     (* we cannot do this yet
      * class function accumulate(first, last: TIterator<T>; init: T);
      *)
@@ -74,7 +80,10 @@ type
     class function lexicographical_compare(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean; overload;
     class function lower_bound(first, last: TIterator<T>; value: T): TIterator<T>; overload;
     class function lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>; overload;
+    class procedure sort(first, last: TIterator<T>); overload;
+    class procedure sort(first, last: TIterator<T>; comp: TCompare<T>);  overload;
   end;
+  {$HINTS ON}
 
   Func<T1, T2> = procedure(p: TPair<T1, T2>);
 
@@ -108,6 +117,15 @@ function is_upper(c: char): boolean;
 implementation
 
 {$REGION 'TIterAlgorithms'}
+
+class procedure TIterAlgorithms<T>.inc_it(var it: TIterator<T>; n: integer);
+begin
+  while n > 0 do
+  begin
+    it.handle.iadvance(it);
+    dec(n);
+  end;
+end;
 
 class function TIterAlgorithms<T>.accumulate(first, last: TIterator<T>; init: T;
                                 binary_op: TBinaryFunction<T, T, T>): T;
@@ -560,6 +578,86 @@ begin
     else count := step;
   end;
   exit(first);
+end;
+
+class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer);
+var
+  i, j, x: integer;
+  xit, iit, jit: TIterator<T>;
+begin
+  i := l;
+  j := r;
+  x := ((i + j) div 2);
+  xit := first; inc_it(xit, x);
+  iit := first; inc_it(iit, i);
+  jit := first; inc_it(jit, j);
+  repeat
+    while (TComparer<T>.Default.compare(iit.handle.iget(iit), xit.handle.iget(xit)) < 0) do
+    begin
+      WRITELN(I);
+      inc(i);
+      iit.handle.iadvance(iit);
+    end;
+    while (TComparer<T>.Default.compare(xit.handle.iget(xit), jit.handle.iget(jit)) < 0) do
+    begin
+    writeln(j);
+      dec(j);
+      jit.handle.iretreat(jit);
+    end;
+    if i <= j then
+    begin
+      writeln('swap', i:3, j:3);
+      iter_swap(iit, jit);
+      inc(i);
+      dec(j);
+    end;
+  until i>j;
+  if l < j then _sort(first, last, l,j);
+  if i < r then _sort(first, last, i,r);
+end;
+
+class procedure TIterAlgorithms<T>.sort(first, last: TIterator<T>);
+begin
+  _sort(first, last, 0, first.handle.idistance(first, last) - 1);
+end;
+
+
+class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer; comp: TCompare<T>);
+var
+  i, j, x: integer;
+  xit, iit, jit, tmp: TIterator<T>;
+begin
+  i := l;
+  j := r;
+  x := ((i + j) shr 1);
+  xit := first; inc_it(xit, x);
+  iit := first; inc_it(iit, i);
+  jit := first; inc_it(jit, j);
+  repeat
+    while (comp(iit.handle.iget(iit), xit.handle.iget(xit)) < 0) do
+    begin
+      inc(i);
+      iit.handle.iadvance(iit);
+    end;
+    while (comp(xit.handle.iget(xit), jit.handle.iget(jit)) < 0) do
+    begin
+      dec(j);
+      jit.handle.iretreat(jit);
+    end;
+    if i <= j then
+    begin
+      iter_swap(iit, jit);
+      inc(i);
+      dec(j);
+    end;
+  until i>j;
+  if l < j then _sort(first, last, l,j);
+  if i < r then _sort(first, last, i,r);
+end;
+
+class procedure TIterAlgorithms<T>.sort(first, last: TIterator<T>; comp: TCompare<T>);
+begin
+  _sort(first, last, 0, first.handle.idistance(first, last) - 1, comp);
 end;
 
 class procedure TIterAlgorithms<T1, T2>.for_each(first, last: TIterator<T1, T2>;

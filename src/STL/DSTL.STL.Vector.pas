@@ -54,6 +54,7 @@ type
     constructor Create; overload;
     constructor Create(alloc: IAllocator<T>); overload;
     constructor Create(n: integer; value: T); overload;
+    constructor Create(arr: array of T); overload;
     constructor Create(first, last: TIterator<T>); overload;
     constructor Create(x: TVector<T>); overload;
     destructor Destroy; override;
@@ -108,6 +109,18 @@ begin
   //getMem(fItems, defaultArrSize * sizeOf(T));
   len := 0;
   cap := defaultArrSize;
+end;
+
+constructor TVector<T>.Create(arr: array of T);
+var
+  i: integer;
+begin
+  allocator := TAllocator<T>.Create;
+  fItems := allocator.allocate(defaultArrSize * sizeOf(T));
+  len := 0;
+  cap := defaultArrSize;
+  for i := low(arr) to high(arr) do
+    push_back(arr[i]);
 end;
 
 constructor TVector<T>.Create(n: integer; value: T);
