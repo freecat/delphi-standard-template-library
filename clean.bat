@@ -17,3 +17,4 @@ del /f /q /s *.pch
 del /f /q /s *.pdi
 del /f /q /s *.tds
 del /f /q /s *.obj
+del /f /q /s *.exe

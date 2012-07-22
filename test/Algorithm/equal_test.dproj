@@ -1,9 +1,9 @@
 ﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 		<PropertyGroup>
-			<ProjectGuid>{13999F32-0EFF-480C-B93E-36A1D8F56605}</ProjectGuid>
+			<ProjectGuid>{253DEB69-E9A5-49D8-8C0F-417FD7A57593}</ProjectGuid>
 			<ProjectVersion>13.4</ProjectVersion>
 			<FrameworkType>None</FrameworkType>
-			<MainSource>find_test.dpr</MainSource>
+			<MainSource>equal_test.dpr</MainSource>
 			<Base>True</Base>
 			<Config Condition="'$(Config)'==''">Debug</Config>
 			<Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -124,7 +124,7 @@
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<Source>
-						<Source Name="MainSource">find_test.dpr</Source>
+						<Source Name="MainSource">equal_test.dpr</Source>
 					</Source>
 				</Delphi.Personality>
 				<Deployment/>

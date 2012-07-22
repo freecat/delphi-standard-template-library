@@ -6,20 +6,23 @@ program find_test;
 
 uses
   System.SysUtils,
+  DSTL.STL.Vector,
   DSTL.Algorithm,
-  DSTL.STL.Iterator,
-  DSTL.STL.Vector;
+  DSTL.STL.Iterator;
 
 var
-  vec: TVector<integer>;
+  v: TVector<integer>;
   it: TIterator<integer>;
-  i: integer;
-
 begin
-  vec := TVector<integer>.Create;
-  for i := 1 to 4 do vec.push_back(i * 10);
-  it := TIterAlgorithms<integer>.find(vec.start, vec.finish, 30);
-  inc(it);
-  writeln('The element following 30 is ', integer(it));
-  readln;
+  try
+    v := TVector<integer>.Create([10,20,30,40]);
+    it := TIterAlgorithms<integer>.find(v.start, v.start + 4, 30);
+    inc(it);
+    writeln('The element following 30 is ', integer(it));
+    readln;
+  except
+    on E: Exception do
+      Writeln(E.ClassName, ': ', E.Message);
+  end;
 end.
+

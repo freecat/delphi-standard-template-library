@@ -34,7 +34,7 @@ uses Generics.Defaults, DSTL.STL.Iterator, DSTL.Types, DSTL.Utils.Pair;
 type
 
 {$REGION 'TIterAlgorithms'}
-  Func<T> = function(p: T): T;
+  Func<T> = procedure(p: T);
 
   {$HINTS OFF}
   TIterAlgorithms<T> = class
@@ -102,6 +102,10 @@ type
 {$ENDREGION}
 
 {$REGION 'String Algorithm'}
+
+
+function upcase(c: char): char;
+function lowcase(c: char): char;
 
 function to_upper(s: string): string;
 function to_lower(s: string): string;
@@ -399,9 +403,9 @@ begin
   while not first1.handle.iequals(first1, last1) do
   begin
     it := first2;
-    while it.handle.iequals(it, last2) do
+    while not it.handle.iequals(it, last2) do
     begin
-      if comp.Compare(it.handle.iget(it), last2.handle.iget(last2)) = 0 then exit(first1);
+      if comp.Compare(it.handle.iget(it), first1.handle.iget(first1)) = 0 then exit(first1);
       it.handle.iadvance(it);
     end;
     first1.handle.iadvance(first1);
@@ -417,9 +421,9 @@ begin
   while not first1.handle.iequals(first1, last1) do
   begin
     it := first2;
-    while it.handle.iequals(it, last2) do
+    while not it.handle.iequals(it, last2) do
     begin
-      if pred(it.handle.iget(it), last2.handle.iget(last2)) then exit(first1);
+      if pred(it.handle.iget(it), first1.handle.iget(first1)) then exit(first1);
       it.handle.iadvance(it);
     end;
     first1.handle.iadvance(first1);
