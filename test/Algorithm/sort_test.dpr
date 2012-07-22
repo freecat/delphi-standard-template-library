@@ -9,10 +9,16 @@ var
   v: TVector<integer>;
   i: integer;
 begin
-  v := TVector<integer>.Create([32,71,12,45,26,80,53,33]);
+  randomize;
+  v := TVector<integer>.Create;
+  for i := 1 to 6000 do v.push_back(random(2147483647));
   TIterAlgorithms<integer>.sort(v.start, v.finish);
 
-  for i := 0 to v.size - 1 do  write(v[i]:3);
+  for i := 0 to v.size - 1 do
+  begin
+    write(v[i],' ');
+    if i mod 6 = 0  then  writeln;
+  end;
   writeln;
   readln;
 end.

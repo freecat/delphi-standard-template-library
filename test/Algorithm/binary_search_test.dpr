@@ -13,7 +13,7 @@ begin
 end;
 
 var
-  v: TVector<integer>;
+  v: TVector<integer>;  i: integer;
 
 begin
   v := TVector<integer>.Create;
@@ -29,6 +29,8 @@ begin
 
   // using default comparison:
   TIterAlgorithms<integer>.sort(v.start, v.finish);
+  for i := 0 to v.size - 1 do write(v[i]:3); writeln;
+
 
   write('looking for a 3... ');
   if (TIterAlgorithms<integer>.binary_search (v.start, v.finish, 3)) then

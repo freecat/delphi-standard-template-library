@@ -584,32 +584,38 @@ class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: intege
 var
   i, j, x: integer;
   xit, iit, jit: TIterator<T>;
+  tmp, xobj: T;
+
 begin
   i := l;
   j := r;
   x := ((i + j) div 2);
   xit := first; inc_it(xit, x);
+  xobj := xit.handle.iget(xit);
   iit := first; inc_it(iit, i);
   jit := first; inc_it(jit, j);
   repeat
-    while (TComparer<T>.Default.compare(iit.handle.iget(iit), xit.handle.iget(xit)) < 0) do
+    (* items[i] < x *)
+    while (TComparer<T>.Default.compare(iit.handle.iget(iit), xobj) < 0) do
     begin
-      WRITELN(I);
       inc(i);
       iit.handle.iadvance(iit);
     end;
-    while (TComparer<T>.Default.compare(xit.handle.iget(xit), jit.handle.iget(jit)) < 0) do
+    (* items[j] > x *)
+    while (TComparer<T>.Default.compare(xobj, jit.handle.iget(jit)) < 0) do
     begin
-    writeln(j);
       dec(j);
       jit.handle.iretreat(jit);
     end;
     if i <= j then
     begin
-      writeln('swap', i:3, j:3);
-      iter_swap(iit, jit);
+      tmp := iit.handle.iget(iit);
+      iit.handle.iput(iit, jit.handle.iget(jit));
+      jit.handle.iput(jit, tmp);
       inc(i);
+      iit.handle.iadvance(iit);
       dec(j);
+      jit.handle.iretreat(jit);
     end;
   until i>j;
   if l < j then _sort(first, last, l,j);
@@ -625,30 +631,39 @@ end;
 class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer; comp: TCompare<T>);
 var
   i, j, x: integer;
-  xit, iit, jit, tmp: TIterator<T>;
+  xit, iit, jit: TIterator<T>;
+  tmp, xobj: T;
+
 begin
   i := l;
   j := r;
-  x := ((i + j) shr 1);
+  x := ((i + j) div 2);
   xit := first; inc_it(xit, x);
+  xobj := xit.handle.iget(xit);
   iit := first; inc_it(iit, i);
   jit := first; inc_it(jit, j);
   repeat
-    while (comp(iit.handle.iget(iit), xit.handle.iget(xit)) < 0) do
+    (* items[i] < x *)
+    while (comp(iit.handle.iget(iit), xobj) < 0) do
     begin
       inc(i);
       iit.handle.iadvance(iit);
     end;
-    while (comp(xit.handle.iget(xit), jit.handle.iget(jit)) < 0) do
+    (* items[j] > x *)
+    while (comp(xobj, jit.handle.iget(jit)) < 0) do
     begin
       dec(j);
       jit.handle.iretreat(jit);
     end;
     if i <= j then
     begin
-      iter_swap(iit, jit);
+      tmp := iit.handle.iget(iit);
+      iit.handle.iput(iit, jit.handle.iget(jit));
+      jit.handle.iput(jit, tmp);
       inc(i);
+      iit.handle.iadvance(iit);
       dec(j);
+      jit.handle.iretreat(jit);
     end;
   until i>j;
   if l < j then _sort(first, last, l,j);
