@@ -529,19 +529,14 @@ end;
 class function TIterAlgorithms<T>.lower_bound(first, last: TIterator<T>; value: T): TIterator<T>;
 var
   it: TIterator<T>;
-  count, step, tmp: integer;
+  count, step: integer;
 begin
   count := first.handle.idistance(first,last);
   while (count>0) do
   begin
     it := first;
     step:=count div 2;
-    tmp := step;
-    while tmp > 0 do
-    begin
-      it.handle.iadvance(it);
-      dec(step);
-    end;
+    inc_it(it, step);
     if TComparer<T>.Default.Compare(it.handle.iget(it), value) < 0 then
     begin
       it.handle.iadvance(it);
@@ -556,19 +551,14 @@ end;
 class function TIterAlgorithms<T>.lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>;
 var
   it: TIterator<T>;
-  count, step, tmp: integer;
+  count, step: integer;
 begin
   count := first.handle.idistance(first,last);
   while (count>0) do
   begin
     it := first;
     step:=count div 2;
-    tmp := step;
-    while tmp > 0 do
-    begin
-      it.handle.iadvance(it);
-      dec(step);
-    end;
+    inc_it(it, step);
     if comp(it.handle.iget(it), value) < 0 then                   // or: if (comp(*it,value)), for the comp version
     begin
       it.handle.iadvance(it);
