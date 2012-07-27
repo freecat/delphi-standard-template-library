@@ -83,6 +83,8 @@ type
     class function max_element(first, last: TIterator<T>): TIterator<T>;
     class function merge(first1, last1, first2, last2, res: TIterator<T>): TIterator<T>;
     class function min_element(first, last: TIterator<T>): TIterator<T>;
+    class function mismatch(first1, last1, first2: TIterator<T>): TPair<TIterator<T>, TIterator<T>>; overload;
+    class function mismatch(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): TPair<TIterator<T>, TIterator<T>>; overload;
     class procedure sort(first, last: TIterator<T>); overload;
     class procedure sort(first, last: TIterator<T>; comp: TCompare<T>);  overload;
   end;
@@ -633,6 +635,28 @@ begin
     first.handle.iadvance(first);
   end;
   exit(lowest);
+end;
+
+class function TIterAlgorithms<T>.mismatch(first1, last1, first2: TIterator<T>): TPair<TIterator<T>, TIterator<T>>;
+begin
+  while (not first1.handle.iequals(first1, last1)) and
+    (TComparer<T>.Default.Compare(first1.handle.iget(first1), first2.handle.iget(first2)) = 0) do
+  begin
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  Result := TPair<TIterator<T>, TIterator<T>>.Create(first1, first2);
+end;
+
+class function TIterAlgorithms<T>.mismatch(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): TPair<TIterator<T>, TIterator<T>>;
+begin
+  while (not first1.handle.iequals(first1, last1)) and
+    (pred(first1.handle.iget(first1), first2.handle.iget(first2))) do
+  begin
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  Result := TPair<TIterator<T>, TIterator<T>>.Create(first1, first2);
 end;
 
 class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer);
