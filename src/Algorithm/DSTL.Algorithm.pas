@@ -32,14 +32,18 @@ interface
 uses Generics.Defaults, DSTL.STL.Iterator, DSTL.Types, DSTL.Utils.Pair;
 
 type
-
 {$REGION 'TIterAlgorithms'}
   Func<T> = procedure(p: T);
 
   {$HINTS OFF}
   TIterAlgorithms<T> = class
   private
-    class procedure inc_it(var it: TIterator<T>; n: integer);
+    class function inc_it(var it: TIterator<T>; n: integer): TIterator<T>;
+    class function dec_it(var it: Titerator<T>; n: integer): TIterator<T>;
+    class function equal_it(it1, it2: TIterator<T>): boolean;
+    class function get_it(it: TIterator<T>): T;
+    class procedure put_it(it: TIterator<T>; obj: T);
+    class function compare_obj(obj1, obj2: T): integer;
     class procedure _sort(first, last: TIterator<T>; l, r: integer); overload;
     class procedure _sort(first, last: TIterator<T>; l, r: integer; comp: TCompare<T>); overload;
   public
@@ -80,6 +84,15 @@ type
     class function lexicographical_compare(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean; overload;
     class function lower_bound(first, last: TIterator<T>; value: T): TIterator<T>; overload;
     class function lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>; overload;
+    class function next_permutation(first, last: TIterator<T>): boolean; overload;
+    class function next_permutation(first, last: TIterator<T>; comp: TCompare<T>): boolean; overload;
+    class function partition(first, last: TIterator<T>; pred: TPredicate<T>): TIterator<T>;
+    class function prev_permutation(first, last: TIterator<T>): boolean; overload;
+    class function prev_permutation(first, last: TIterator<T>; comp: TCompare<T>): boolean; overload;
+    class procedure random_shuffle(first, last: TIterator<T>); overload;
+    class procedure random_shuffle(first, last: TIterator<T>; rand: TRandomNumberGenerator); overload;
+    class procedure reverse(first, last: TIterator<T>);
+    class procedure rotate(first, middle, last: TIterator<T>);
     class procedure sort(first, last: TIterator<T>); overload;
     class procedure sort(first, last: TIterator<T>; comp: TCompare<T>);  overload;
   end;
@@ -122,13 +135,44 @@ implementation
 
 {$REGION 'TIterAlgorithms'}
 
-class procedure TIterAlgorithms<T>.inc_it(var it: TIterator<T>; n: integer);
+class function TIterAlgorithms<T>.inc_it(var it: TIterator<T>; n: integer): TIterator<T>;
 begin
   while n > 0 do
   begin
     it.handle.iadvance(it);
     dec(n);
   end;
+  exit(it);
+end;
+
+class function TIterAlgorithms<T>.dec_it(var it: TIterator<T>; n: integer): TIterator<T>;
+begin
+  while n > 0 do
+  begin
+    it.handle.iretreat(it);
+    dec(n);
+  end;
+  exit(it);
+end;
+
+class function TIterAlgorithms<T>.equal_it(it1, it2: TIterator<T>): boolean;
+begin
+  Result := it1.handle.iequals(it1, it2);
+end;
+
+class function TIterAlgorithms<T>.get_it(it: TIterator<T>): T;
+begin
+  Result := it.handle.iget(it);
+end;
+
+class procedure TIterAlgorithms<T>.put_it(it: TIterator<T>; obj: T);
+begin
+  it.handle.iput(it, obj);
+end;
+
+class function TIterAlgorithms<T>.compare_obj(obj1, obj2: T): integer;
+begin
+  Result := TComparer<T>.Default.Compare(obj1, obj2);
 end;
 
 class function TIterAlgorithms<T>.accumulate(first, last: TIterator<T>; init: T;
@@ -572,6 +616,225 @@ begin
     else count := step;
   end;
   exit(first);
+end;
+
+class function TIterAlgorithms<T>.next_permutation(first, last: TIterator<T>): boolean;
+var
+  i, ii, j: TIterator<T>;
+begin
+  if (first.handle.iequals(first, last)) then exit(false);
+  i := first;
+  i.handle.iadvance(i);
+  if (i.handle.iequals(i, last)) then
+    exit(false);
+  i := last;
+  i.handle.iretreat(i);
+
+  while true do
+  begin
+    ii := i;
+    i.handle.iretreat(i);
+    if TComparer<T>.Default.Compare(i.handle.iget(i), ii.handle.iget(ii)) < 0 then
+    begin
+      j := last;
+      j.handle.iretreat(j);
+      while (not(TComparer<T>.Default.Compare(i.handle.iget(i), j.handle.iget(j)) < 0)) do
+      begin
+        j.handle.iretreat(j);
+      end;
+      iter_swap(i, j);
+      reverse(ii, last);
+      exit(true);
+    end;
+    if (i.handle.iequals(i, first)) then
+    begin
+      reverse(first, last);
+      exit(false);
+    end;
+  end;
+end;
+
+class function TIterAlgorithms<T>.next_permutation(first, last: TIterator<T>; comp: TCompare<T>): boolean;
+var
+  i, ii, j: TIterator<T>;
+begin
+  if (first.handle.iequals(first, last)) then exit(false);
+  i := first;
+  i.handle.iadvance(i);
+  if (i.handle.iequals(i, last)) then
+    exit(false);
+  i := last;
+  i.handle.iretreat(i);
+
+  while true do
+  begin
+    ii := i;
+    i.handle.iretreat(i);
+    if comp(i.handle.iget(i), ii.handle.iget(ii)) < 0 then
+    begin
+      j := last;
+      j.handle.iretreat(j);
+      while (not(comp(i.handle.iget(i), j.handle.iget(j)) < 0)) do
+      begin
+        j.handle.iretreat(j);
+      end;
+      iter_swap(i, j);
+      reverse(ii, last);
+      exit(true);
+    end;
+    if (i.handle.iequals(i, first)) then
+    begin
+      reverse(first, last);
+      exit(false);
+    end;
+  end;
+end;
+
+class function TIterAlgorithms<T>.partition(first, last: TIterator<T>; pred: TPredicate<T>): TIterator<T>;
+begin
+  while true do
+  begin
+    while (not first.handle.iequals(first, last)) and pred(first.handle.iget(first)) do inc_it(first,1);
+    if first.handle.iequals(first, last) then break;
+    dec_it(last, 1);
+    while (not first.handle.iequals(first, last)) and (not pred(last.handle.iget(last))) do dec_it(last, 1);
+    if first.handle.iequals(first, last) then break;
+    iter_swap(first, last);
+    inc_it(first, 1)
+  end;
+  exit(first);
+end;
+
+class function TIterAlgorithms<T>.prev_permutation(first, last: TIterator<T>): boolean;
+var
+  i, ii, j: TIterator<T>;
+begin
+  if (first.handle.iequals(first, last)) then exit(false);
+  i := first;
+  i.handle.iadvance(i);
+  if (i.handle.iequals(i, last)) then
+    exit(false);
+  i := last;
+  i.handle.iretreat(i);
+
+  while true do
+  begin
+    ii := i;
+    i.handle.iretreat(i);
+    if TComparer<T>.Default.Compare(ii.handle.iget(ii), i.handle.iget(i)) < 0 then
+    begin
+      j := last;
+      j.handle.iretreat(j);
+      while (not(TComparer<T>.Default.Compare(j.handle.iget(j), i.handle.iget(i)) < 0)) do
+      begin
+        j.handle.iretreat(j);
+      end;
+      iter_swap(i, j);
+      reverse(ii, last);
+      exit(true);
+    end;
+    if (i.handle.iequals(i, first)) then
+    begin
+      reverse(first, last);
+      exit(false);
+    end;
+  end;
+end;
+
+class function TIterAlgorithms<T>.prev_permutation(first, last: TIterator<T>; comp: TCompare<T>): boolean;
+var
+  i, ii, j: TIterator<T>;
+begin
+  if (first.handle.iequals(first, last)) then exit(false);
+  i := first;
+  i.handle.iadvance(i);
+  if (i.handle.iequals(i, last)) then
+    exit(false);
+  i := last;
+  i.handle.iretreat(i);
+
+  while true do
+  begin
+    ii := i;
+    i.handle.iretreat(i);
+    if comp(ii.handle.iget(ii), i.handle.iget(i)) < 0 then
+    begin
+      j := last;
+      j.handle.iretreat(j);
+      while (not(comp(j.handle.iget(j), i.handle.iget(i)) < 0)) do
+      begin
+        j.handle.iretreat(j);
+      end;
+      iter_swap(i, j);
+      reverse(ii, last);
+      exit(true);
+    end;
+    if (i.handle.iequals(i, first)) then
+    begin
+      reverse(first, last);
+      exit(false);
+    end;
+  end;
+end;
+
+class procedure TIterAlgorithms<T>.random_shuffle(first, last: TIterator<T>);
+var
+  n: integer;
+  tmp1, tmp2: TIterator<T>;
+begin
+  randomize;
+  n := first.handle.idistance(first, last) - 1;
+  while n >= 0 do
+  begin
+    tmp1 := first;
+    inc_it(tmp1, n);
+    tmp2 := first;
+    inc_it(tmp2, random(n + 1));
+    iter_swap(tmp1, tmp2);
+  end;
+end;
+
+class procedure TIterAlgorithms<T>.random_shuffle(first, last: TIterator<T>; rand: TRandomNumberGenerator);
+var
+  n: integer;
+  tmp1, tmp2: TIterator<T>;
+begin
+  randomize;
+  n := first.handle.idistance(first, last) - 1;
+  while n >= 0 do
+  begin
+    tmp1 := first;
+    inc_it(tmp1, n);
+    tmp2 := first;
+    inc_it(tmp2, rand(n + 1));
+    iter_swap(tmp1, tmp2);
+  end;
+end;
+
+class procedure TIterAlgorithms<T>.reverse(first, last: TIterator<T>);
+begin
+  while not first.handle.iequals(first, last) do
+  begin
+    dec_it(last, 1);
+    if first.handle.iequals(first, last) then break;
+    iter_swap(first, last);
+    inc_it(first, 1);
+  end;
+end;
+
+class procedure TIterAlgorithms<T>.rotate(first, middle, last: TIterator<T>);
+var
+  next: TIterator<T>;
+begin
+  next := middle;
+  while not (first.handle.iequals(first, next)) do
+  begin
+    iter_swap(first, next);
+    first.handle.iadvance(first);
+    next.handle.iadvance(next);
+    if (next.handle.iequals(next, last)) then next := middle
+    else if (first.handle.iequals(first, middle)) then middle := next;
+  end;
 end;
 
 class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer);
