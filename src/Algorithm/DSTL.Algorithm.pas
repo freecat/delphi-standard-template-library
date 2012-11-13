@@ -84,7 +84,6 @@ type
     class function lexicographical_compare(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean; overload;
     class function lower_bound(first, last: TIterator<T>; value: T): TIterator<T>; overload;
     class function lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>; overload;
-<<<<<<< HEAD
     class function next_permutation(first, last: TIterator<T>): boolean; overload;
     class function next_permutation(first, last: TIterator<T>; comp: TCompare<T>): boolean; overload;
     class function partition(first, last: TIterator<T>; pred: TPredicate<T>): TIterator<T>;
@@ -94,13 +93,11 @@ type
     class procedure random_shuffle(first, last: TIterator<T>; rand: TRandomNumberGenerator); overload;
     class procedure reverse(first, last: TIterator<T>);
     class procedure rotate(first, middle, last: TIterator<T>);
-=======
     class function max_element(first, last: TIterator<T>): TIterator<T>;
     class function merge(first1, last1, first2, last2, res: TIterator<T>): TIterator<T>;
     class function min_element(first, last: TIterator<T>): TIterator<T>;
     class function mismatch(first1, last1, first2: TIterator<T>): TPair<TIterator<T>, TIterator<T>>; overload;
     class function mismatch(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): TPair<TIterator<T>, TIterator<T>>; overload;
->>>>>>> aa4322c28c976ef142c468b7579478294886c1c5
     class procedure sort(first, last: TIterator<T>); overload;
     class procedure sort(first, last: TIterator<T>; comp: TCompare<T>);  overload;
   end;
@@ -628,7 +625,6 @@ begin
   exit(first);
 end;
 
-<<<<<<< HEAD
 class function TIterAlgorithms<T>.next_permutation(first, last: TIterator<T>): boolean;
 var
   i, ii, j: TIterator<T>;
@@ -846,7 +842,8 @@ begin
     if (next.handle.iequals(next, last)) then next := middle
     else if (first.handle.iequals(first, middle)) then middle := next;
   end;
-=======
+end;
+
 class function TIterAlgorithms<T>.max_element(first, last: TIterator<T>): TIterator<T>;
 var
   largest: TIterator<T>;
@@ -923,7 +920,6 @@ begin
     first2.handle.iadvance(first2);
   end;
   Result := TPair<TIterator<T>, TIterator<T>>.Create(first1, first2);
->>>>>>> aa4322c28c976ef142c468b7579478294886c1c5
 end;
 
 class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer);
