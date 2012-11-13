@@ -84,6 +84,7 @@ type
     class function lexicographical_compare(first1, last1, first2, last2: TIterator<T>; comp: TCompare<T>): boolean; overload;
     class function lower_bound(first, last: TIterator<T>; value: T): TIterator<T>; overload;
     class function lower_bound(first, last: TIterator<T>; value: T; comp: TCompare<T>): TIterator<T>; overload;
+<<<<<<< HEAD
     class function next_permutation(first, last: TIterator<T>): boolean; overload;
     class function next_permutation(first, last: TIterator<T>; comp: TCompare<T>): boolean; overload;
     class function partition(first, last: TIterator<T>; pred: TPredicate<T>): TIterator<T>;
@@ -93,6 +94,13 @@ type
     class procedure random_shuffle(first, last: TIterator<T>; rand: TRandomNumberGenerator); overload;
     class procedure reverse(first, last: TIterator<T>);
     class procedure rotate(first, middle, last: TIterator<T>);
+=======
+    class function max_element(first, last: TIterator<T>): TIterator<T>;
+    class function merge(first1, last1, first2, last2, res: TIterator<T>): TIterator<T>;
+    class function min_element(first, last: TIterator<T>): TIterator<T>;
+    class function mismatch(first1, last1, first2: TIterator<T>): TPair<TIterator<T>, TIterator<T>>; overload;
+    class function mismatch(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): TPair<TIterator<T>, TIterator<T>>; overload;
+>>>>>>> aa4322c28c976ef142c468b7579478294886c1c5
     class procedure sort(first, last: TIterator<T>); overload;
     class procedure sort(first, last: TIterator<T>; comp: TCompare<T>);  overload;
   end;
@@ -108,8 +116,10 @@ type
 {$REGION 'TMinMax<T>'}
 
   TMinMax<T> = class
-    function min(data: array of T): T;
-    function max(data: array of T): T;
+    class function min(data: array of T): T; overload;
+    class function min(a, b: T): T; overload;
+    class function max(data: array of T): T; overload;
+    class function max(a, b: T): T; overload;
   end;
 
 {$ENDREGION}
@@ -618,6 +628,7 @@ begin
   exit(first);
 end;
 
+<<<<<<< HEAD
 class function TIterAlgorithms<T>.next_permutation(first, last: TIterator<T>): boolean;
 var
   i, ii, j: TIterator<T>;
@@ -835,6 +846,84 @@ begin
     if (next.handle.iequals(next, last)) then next := middle
     else if (first.handle.iequals(first, middle)) then middle := next;
   end;
+=======
+class function TIterAlgorithms<T>.max_element(first, last: TIterator<T>): TIterator<T>;
+var
+  largest: TIterator<T>;
+begin
+  largest := first;
+  if first.handle.iequals(first, last) then exit(first);
+  while not first.handle.iequals(first, last) do
+  begin
+    (* if first > largest then *)
+    if TComparer<T>.Default.Compare(first.handle.iget(first), largest.handle.iget(largest)) > 0 then
+    begin
+      largest := first;
+    end;
+    first.handle.iadvance(first);
+  end;
+  exit(largest);
+end;
+
+class function TIterAlgorithms<T>.merge(first1, last1, first2, last2, res: TIterator<T>): TIterator<T>;
+begin
+  while true do
+  begin
+    (* if first2 < first1 *)
+    if TComparer<T>.Default.Compare(first2.handle.iget(first2), first1.handle.iget(first1)) < 0 then
+    begin
+      res.handle.iput(res, first2.handle.iget(first2));
+      first2.handle.iadvance(first2);
+    end
+    else begin
+      res.handle.iput(res, first1.handle.iget(first1));
+      first1.handle.iadvance(first1);
+    end;
+    res.handle.iadvance(res);
+    if first1.handle.iequals(first1, last1) then exit(copy(first2, last2, res));
+    if first2.handle.iequals(first2, last2) then exit(copy(first1, last1, res));
+  end;
+end;
+
+class function TIterAlgorithms<T>.min_element(first, last: TIterator<T>): TIterator<T>;
+var
+  lowest: TIterator<T>;
+begin
+  lowest := first;
+  if first.handle.iequals(first, last) then exit(first);
+  while not first.handle.iequals(first, last) do
+  begin
+    (* if first < lowest then *)
+    if TComparer<T>.Default.Compare(first.handle.iget(first), lowest.handle.iget(lowest)) < 0 then
+    begin
+      lowest := first;
+    end;
+    first.handle.iadvance(first);
+  end;
+  exit(lowest);
+end;
+
+class function TIterAlgorithms<T>.mismatch(first1, last1, first2: TIterator<T>): TPair<TIterator<T>, TIterator<T>>;
+begin
+  while (not first1.handle.iequals(first1, last1)) and
+    (TComparer<T>.Default.Compare(first1.handle.iget(first1), first2.handle.iget(first2)) = 0) do
+  begin
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  Result := TPair<TIterator<T>, TIterator<T>>.Create(first1, first2);
+end;
+
+class function TIterAlgorithms<T>.mismatch(first1, last1, first2: TIterator<T>; pred: TBinaryPredicate<T, T>): TPair<TIterator<T>, TIterator<T>>;
+begin
+  while (not first1.handle.iequals(first1, last1)) and
+    (pred(first1.handle.iget(first1), first2.handle.iget(first2))) do
+  begin
+    first1.handle.iadvance(first1);
+    first2.handle.iadvance(first2);
+  end;
+  Result := TPair<TIterator<T>, TIterator<T>>.Create(first1, first2);
+>>>>>>> aa4322c28c976ef142c468b7579478294886c1c5
 end;
 
 class procedure TIterAlgorithms<T>._sort(first, last: TIterator<T>; l, r: integer);
@@ -941,7 +1030,7 @@ end;
 
 {$REGION 'TMinMax<T>'}
 
-function TMinMax<T>.min(data: array of T): T;
+class function TMinMax<T>.min(data: array of T): T;
 var
   i: integer;
   tmp: T;
@@ -955,7 +1044,12 @@ begin
   result := tmp;
 end;
 
-function TMinMax<T>.max(data: array of T): T;
+class function TMinMax<T>.min(a, b: T): T;
+begin
+  if TComparer<T>.Default.Compare(a, b) < 0 then exit(a) else exit(b);
+end;
+
+class function TMinMax<T>.max(data: array of T): T;
 var
   i: integer;
   tmp: T;
@@ -967,6 +1061,11 @@ begin
     if comparer.Compare(data[i], tmp) > 0 then
       tmp := data[i];
   result := tmp;
+end;
+
+class function TMinMax<T>.max(a, b: T): T;
+begin
+  if TComparer<T>.Default.Compare(a, b) > 0 then exit(a) else exit(b);
 end;
 
 {$ENDREGION}
