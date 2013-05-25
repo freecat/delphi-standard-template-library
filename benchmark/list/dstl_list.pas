@@ -27,14 +27,14 @@ var
   i: integer;
 begin
   l := TList<integer>.Create;
-  for i := 1 to 1000 do
+  for i := 1 to 1000000 do
   begin
     l.push_back(random(30000));
   end;
   sw.start;
   l.sort;
   sw.stop;
-  writeln('pushing 1000000 elements into a list takes: ', sw.elapsedMSec:0:2, 'ms');
+  writeln('sort 1000000 elements into a list takes: ', sw.elapsedMSec:0:2, 'ms');
 end;
 
 begin

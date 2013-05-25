@@ -224,6 +224,7 @@ procedure remove_if_test;
   end;
 var
   mylist: TList<integer>;
+  ir: TIterator<integer>;
 begin
   writeln('remove_if test');
   mylist := TList<integer>.Create;
@@ -236,6 +237,12 @@ begin
   mylist.push_back(39);
   mylist.push_back(4);
   mylist.push_back(1);
+  ir := mylist.rstart;
+  while ir <> mylist.rfinish do
+  begin
+    writeln(integer(ir));
+    inc(ir);
+  end;
   writeln('before removing');
   printlist(mylist);                // 15 36 7 17 20 39 4 1
 

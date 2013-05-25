@@ -31,7 +31,8 @@ interface
 
 uses
   SysUtils, DSTL.Config, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.TreeNode,
-  DSTL.Utils.Pair, DSTL.STL.DequeMap, DSTL.Exception;
+  DSTL.Utils.Pair, DSTL.STL.DequeMap, DSTL.Exception, DSTL.Tree.TreeNode,
+  DSTL.STL.HashNode;
 
 const
   defaultArrSize = 16;
@@ -43,9 +44,9 @@ type
 
   TIteratorHandle<T> = class;
   TIteratorHandle<T1, T2> = class;
-  IteratorStructure = (isVector, isDeque, isList, isMap, isSet, isHash);
+  IteratorStructure = (isVector, isDeque, isList, isMapSet, isHash, isTree);
 
-  TIteratorFlag = (ifForward, ifBidirectional, ifRandomAccess);
+  TIteratorFlag = (ifForward, ifReverse, ifBidirectional, ifRandomAccess);
   TIteratorFlags = set of TIteratorFlag;
 
   TIterator<T> = record
@@ -78,17 +79,24 @@ type
       isList:
         (* node points to current node in the list *)
         (node: TListNode<T>);
+      isTree:
+        (tree_node: TTreeNode<T>);
   end;
 
   TIterator<T1, T2> = record
     handle: TIteratorHandle<T1, T2>;
     flags: TIteratorFlags;
-    node: TTreeNode<T1, T2>;
     class operator Implicit(a: TIterator<T1, T2>): TPair<T1, T2>;
     class operator Inc(a: TIterator<T1, T2>): TIterator<T1, T2>;
     class operator Dec(a: TIterator<T1, T2>): TIterator<T1, T2>;
     class operator Equal(a: TIterator<T1, T2>; b: TIterator<T1, T2>): Boolean;
     class operator NotEqual(a: TIterator<T1, T2>; b: TIterator<T1, T2>): Boolean;
+    case IteratorStructure of
+      isMapSet:
+        (node: TTreeNode<T1, T2>);
+      isHash:
+        (hnode: THashNode<T2>;
+         ht: pointer );
   end;
 
   TIteratorHandle<T> = class

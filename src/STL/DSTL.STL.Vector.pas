@@ -85,6 +85,7 @@ type
     procedure swap(var vec: TVector<T>);
     property items[idx: integer]: T read get_item write set_item; default;
     function get_allocator: IAllocator<T>;
+    procedure set_allocator(alloc: IAllocator<T>);
   end;
 
 implementation
@@ -465,6 +466,11 @@ end;
 function TVector<T>.get_allocator: IAllocator<T>;
 begin
   Result := Self.allocator;
+end;
+
+procedure TVector<T>.set_allocator(alloc: IAllocator<T>);
+begin
+  Self.allocator := alloc;
 end;
 
 end.

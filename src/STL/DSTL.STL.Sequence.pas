@@ -39,6 +39,8 @@ type
     procedure clear; override;
     function start: TIterator<T>; virtual;
     function finish: TIterator<T>; virtual;
+    function rstart: TIterator<T>; virtual;
+    function rfinish: TIterator<T>; virtual;
     function front: T; virtual;
     function back: T; virtual;
     function max_size: Integer; virtual;
@@ -74,6 +76,14 @@ begin
 end;
 
 function TSequence<T>.finish: TIterator<T>;
+begin
+end;
+
+function TSequence<T>.rstart: TIterator<T>;
+begin
+end;
+
+function TSequence<T>.rfinish: TIterator<T>;
 begin
 end;
 

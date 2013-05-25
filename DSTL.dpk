@@ -59,6 +59,10 @@ contains
   DSTL.STL.Alloc in 'src\STL\DSTL.STL.Alloc.pas',
   DSTL.STL.DequeMap in 'src\STL\DSTL.STL.DequeMap.pas',
   DSTL.STL.Sequence in 'src\STL\DSTL.STL.Sequence.pas',
-  DSTL.Algorithm.Heap in 'src\Algorithm\DSTL.Algorithm.Heap.pas';
+  DSTL.Algorithm.Heap in 'src\Algorithm\DSTL.Algorithm.Heap.pas',
+  DSTL.Tree.BinaryTree in 'src\Tree\DSTL.Tree.BinaryTree.pas',
+  DSTL.Tree.TreeNode in 'src\Tree\DSTL.Tree.TreeNode.pas',
+  DSTL.STL.HashTable in 'src\STL\DSTL.STL.HashTable.pas',
+  DSTL.STL.HashNode in 'src\STL\DSTL.STL.HashNode.pas';
 
 end.

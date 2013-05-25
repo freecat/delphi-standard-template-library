@@ -32,7 +32,7 @@ interface
 uses
   DSTL.Config,
   SysUtils, DSTL.Types, DSTL.STL.ListNode, DSTL.STL.Iterator, DSTL.STL.Vector,
-  Generics.Defaults, DSTL.Exception, DSTL.STL.Sequence;
+  Generics.Defaults, DSTL.Exception, DSTL.STL.Sequence, DSTL.STL.Alloc;
 
 type
 
@@ -40,7 +40,9 @@ type
   TList<T> = class(TSequence<T>)
   protected
     head, tail: TListNode<T>;
-    fin_node: TListNode<T>; (* the past-the-end element *)
+    fin_node: TListNode<T>; (* the past-the-end element
+                  tail.next = fin_node *)
+    allocator: IAllocator<T>;
 
     procedure iadvance(var Iterator: TIterator<T>); override;
     procedure iretreat(var Iterator: TIterator<T>); override;
@@ -52,8 +54,10 @@ type
     procedure _sort(comparator: IComparer<T>; l, r: integer);
     function get_item(idx: integer): T;
     procedure set_item(idx: integer; const value: T);
+    procedure protected_create;
   public
     constructor Create; overload;
+    constructor Create(alloc: IAllocator<T>); overload;
     constructor Create(n: integer; value: T); overload;
     constructor Create(first, last: TIterator<T>); overload;
     constructor Create(x: TList<T>); overload;
@@ -66,6 +70,8 @@ type
     procedure clear; override;
     function start: TIterator<T>; override;
     function finish: TIterator<T>; override;
+    function rstart: TIterator<T>; override;
+    function rfinish: TIterator<T>; override;
     function front: T; override;
     function back: T; override;
     function max_size: integer; override;
@@ -97,6 +103,9 @@ type
     procedure unique;  overload;
     procedure unique(bin_pred: TBinaryPredicate<T, T>); overload;
 
+    function get_allocator: IAllocator<T>;
+    procedure set_allocator(alloc: IAllocator<T>);
+
     property items[idx: integer]: T read get_item write set_item; default;
   end;
 
@@ -106,28 +115,40 @@ implementation
 
 {$REGION 'TList<T>'}
 
-constructor TList<T>.Create;
+procedure TList<T>.protected_create;
 begin
   head := nil;
   tail := nil;
+  allocator := TAllocator<T>.Create;
   fin_node := TListNode<T>.Create;
+end;
+
+constructor TList<T>.Create;
+begin
+  protected_create;
+end;
+
+constructor TList<T>.Create(alloc: IAllocator<T>);
+begin
+  protected_create;
+  allocator := alloc;
 end;
 
 constructor TList<T>.Create(n: integer; value: T);
 begin
-  fin_node := TListNode<T>.Create;
+  protected_create;
   assign(n, value);
 end;
 
 constructor TList<T>.Create(first, last: TIterator<T>);
 begin
-  fin_node := TListNode<T>.Create;
+  protected_create;
   assign(first, last);
 end;
 
 constructor TList<T>.Create(x: TList<T>);
 begin
-  fin_node := TListNode<T>.Create;
+  protected_create;
   assign(x.start, x.finish);
 end;
 
@@ -138,6 +159,15 @@ end;
 
 procedure TList<T>.iadvance(var Iterator: TIterator<T>);
 begin
+  (* reverse iterator *)
+  if ifReverse in Iterator.flags then
+  begin
+    Iterator.flags := Iterator.flags - [ifReverse];
+    iretreat(Iterator);
+    Iterator.flags := Iterator.flags + [ifReverse];
+    exit;
+  end;
+
   (* tail - return an iterator referring to the past-the-end element
       in the list container *)
   if Iterator.node = Self.tail then
@@ -157,6 +187,15 @@ end;
 
 procedure TList<T>.iretreat(var Iterator: TIterator<T>);
 begin
+  (* reverse iterator *)
+  if ifReverse in Iterator.flags then
+  begin
+    Iterator.flags := Iterator.flags - [ifReverse];
+    iadvance(Iterator);
+    Iterator.flags := Iterator.flags + [ifReverse];
+    exit;
+  end;
+
   (* fin_node - return an iterator referring to the tail *)
   if Iterator.node = Self.fin_node then
   begin
@@ -341,6 +380,20 @@ begin
   result.node := fin_node;
   result.handle := self;
   result.flags := [ifBidirectional];
+end;
+
+function TList<T>.rstart: TIterator<T>;
+begin
+  result.node := fin_node;
+  result.handle := self;
+  result.flags := [ifBidirectional, ifReverse];
+end;
+
+function TList<T>.rfinish: TIterator<T>;
+begin
+  result.node := head;
+  result.handle := self;
+  result.flags := [ifBidirectional, ifReverse];
 end;
 
 function TList<T>.front: T;
@@ -813,6 +866,16 @@ begin
       it2.handle.iadvance(it2);
     end;
   end;
+end;
+
+function TList<T>.get_allocator: IAllocator<T>;
+begin
+  Result := Self.allocator;
+end;
+
+procedure TList<T>.set_allocator(alloc: IAllocator<T>);
+begin
+  Self.allocator := alloc;
 end;
 
 {$ENDREGION}

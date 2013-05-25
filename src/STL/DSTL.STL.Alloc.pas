@@ -50,7 +50,11 @@ implementation
 
 function TAllocator<T>.allocate(size: integer): pointer;
 begin
-  GetMem(Result, size);
+  try
+    GetMem(Result, size);
+  except
+    dstl_raise_exception(E_OUT_OF_MEMORY);
+  end;
 end;
 
 procedure TAllocator<T>.deallocate(p: pointer);
